@@ -1,0 +1,200 @@
+/* ==========================================================================
+   IRIT LIBERMAN — Project Gallery Lightbox Styles
+   ========================================================================== */
+
+.irit-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.irit-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.irit-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(18, 15, 13, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.irit-lightbox-container {
+  position: relative;
+  z-index: 2;
+  width: 90vw;
+  max-width: 1200px;
+  height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.irit-lightbox-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+.irit-lightbox-img-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.irit-lightbox-img {
+  max-width: 100%;
+  max-height: calc(88vh - 70px);
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  -webkit-user-select: none;
+  user-select: none;
+  transition: transform 0.25s ease;
+}
+
+.irit-lightbox-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  padding-top: 16px;
+  color: #f6f0e6;
+  font-family: 'Manrope', sans-serif;
+}
+
+.irit-lightbox-title {
+  font-family: 'Cormorant Garamond', 'Manrope', serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.irit-lightbox-counter {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Close & Nav Buttons */
+.irit-lightbox-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.irit-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.irit-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.irit-lightbox-nav.prev {
+  left: 8px;
+}
+
+.irit-lightbox-nav.next {
+  right: 8px;
+}
+
+body.lightbox-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .irit-lightbox,
+  .irit-lightbox-img,
+  .irit-lightbox-close,
+  .irit-lightbox-nav {
+    transition: none !important;
+  }
+}
+
+.irit-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.irit-lightbox-nav:focus-visible,
+.irit-lightbox-close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .irit-lightbox-container {
+    width: 95vw;
+    height: 90vh;
+  }
+  .irit-lightbox-nav.prev {
+    left: 4px;
+    width: 40px;
+    height: 40px;
+  }
+  .irit-lightbox-nav.next {
+    right: 4px;
+    width: 40px;
+    height: 40px;
+  }
+  .irit-lightbox-close {
+    top: 4px;
+    right: 4px;
+    width: 40px;
+    height: 40px;
+  }
+  .irit-lightbox-title {
+    font-size: 16px;
+  }
+}

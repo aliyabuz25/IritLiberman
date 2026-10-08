@@ -1,0 +1,532 @@
+/* ==========================================================================
+   IRIT LIBERMAN — Global Navigation & Header Styles
+   ========================================================================== */
+
+:root {
+  --page-gutter: 48px;
+}
+
+@media (max-width: 1279px) {
+  :root { --page-gutter: 32px; }
+}
+
+@media (max-width: 767px) {
+  :root { --page-gutter: 20px; }
+}
+
+/* ── RESET ── */
+.nav-toggle-checkbox { display: none; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  padding: 12px 16px;
+  background: #201b17;
+  color: #f6f0e6;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+}
+
+/* ── SITE HEADER ── */
+.site-header {
+  position: relative;
+  width: 100%;
+  height: 81px;
+  padding: 0 var(--page-gutter);
+  border-bottom: 0.75px solid rgba(30, 27, 23, 0.3);
+  display: flex;
+  align-items: center;
+  background: #fbf9f4;
+  z-index: 100;
+}
+
+/* About & Contact pages use a warmer bg — override via body bg inheritance */
+.site-header--warm {
+  background: #f4f0e8;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* ── LOGO ── */
+.logo {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: #201b17;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 17.25px;
+  letter-spacing: 2.16px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: #201b17;
+}
+
+.logo-sub {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  /* Figma desktop ~6px / non-home mobile 5.5 — bumped for readability */
+  font-size: 8px;
+  letter-spacing: 1.38px;
+  text-transform: uppercase;
+  color: #5d5448;
+}
+
+/* ── MAIN NAV ── */
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 31.5px;
+  flex: 1;
+  justify-content: center;
+}
+
+/* ── NAV LINK ── */
+.nav-link {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 10.12px;
+  letter-spacing: 0.0956em;
+  text-transform: uppercase;
+  color: #201b17;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.nav-link:hover { opacity: 0.65; }
+.nav-link.active { opacity: 1; }
+
+/* ── DISCUSS BUTTON ── */
+.discuss-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 40.38px;
+  padding: 8px 12px;
+  border: 0.5px solid #c3c3c3;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.discuss-btn:hover { opacity: 0.7; }
+
+.discuss-btn-text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.135em;
+  text-transform: uppercase;
+  color: #201b17;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.discuss-btn-arrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12.75px;
+  font-weight: 400;
+  color: #201b17;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* ── FOCUS ── */
+.logo:focus-visible,
+.nav-link:focus-visible,
+.nav-group > .nav-group-label:focus-visible,
+.nav-dropdown a:focus-visible,
+.discuss-btn:focus-visible,
+.hamburger:focus-visible {
+  outline: 2px solid #201b17;
+  outline-offset: 3px;
+}
+
+.hero-header .logo:focus-visible,
+.hero-header .nav-link:focus-visible,
+.hero-header .nav-group > .nav-group-label:focus-visible,
+.hero-header .nav-dropdown a:focus-visible,
+.hero-header .discuss-btn:focus-visible,
+.hero-header .hamburger:focus-visible {
+  outline-color: #f6f0e6;
+}
+
+/* ── HAMBURGER ── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 12px;
+  margin: -8px;
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: #201b17;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+/* ── NAV GROUPS (dropdowns) ── */
+.nav-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-group > .nav-group-label {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.0956em;
+  text-transform: uppercase;
+  color: #201b17;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: normal;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  margin: -10px -4px;
+}
+
+.nav-group:hover > .nav-group-label,
+.nav-group.active > .nav-group-label {
+  opacity: 0.65;
+}
+
+/* Current section indicator (Selected Experience / Capabilities group) */
+.nav-group.active-section > .nav-group-label {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.nav-dropdown a.active {
+  opacity: 0.65;
+}
+
+/* ── DROPDOWN ── */
+.nav-dropdown {
+  display: flex;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 12px;
+  /* Transparent bridge removes hover dead-zone between label and panel */
+  padding: 12px 14px 14px;
+  margin-top: 0;
+  z-index: 120;
+  min-width: 170px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  border-radius: 2px;
+  background: #fbf9f4;
+  background-clip: padding-box;
+  border: 1px solid rgba(32, 27, 23, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.nav-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.nav-dropdown a {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.0956em;
+  text-transform: uppercase;
+  color: #201b17;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: normal;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(32, 27, 23, 0.12);
+  transition: opacity 0.2s;
+}
+
+.nav-dropdown a:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.nav-dropdown a:hover { opacity: 0.65; }
+
+.nav-group:hover .nav-dropdown,
+.nav-group:focus-within .nav-dropdown,
+.nav-group.active .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ── HERO HEADER (index.html — dark/transparent) ── */
+.hero-header {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.45);
+}
+
+.hero-header .logo-name,
+.hero-header .logo-sub,
+.hero-header .nav-link,
+.hero-header .nav-group > .nav-group-label {
+  color: #fff;
+}
+
+.hero-header .logo-sub { color: rgba(255, 255, 255, 0.92); }
+
+.hero-header .discuss-btn {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.hero-header .discuss-btn-text,
+.hero-header .discuss-btn-arrow {
+  color: #fff;
+}
+
+.hero-header .hamburger span { background: #fff; }
+
+.hero-header .nav-dropdown {
+  background: rgba(36, 31, 27, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-header .nav-dropdown a {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── TABLET ── */
+@media (max-width: 1279px) {
+  .site-header { padding: 0 var(--page-gutter); }
+  .main-nav { gap: 12px; min-width: 0; }
+  .nav-link { font-size: 10px; letter-spacing: 0.8px; }
+  .nav-group > .nav-group-label { font-size: 10px; letter-spacing: 0.8px; }
+  .discuss-btn {
+    height: 36px;
+    padding: 6px 10px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .discuss-btn-text {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 767px) {
+  .site-header {
+    padding: 0 var(--page-gutter);
+    height: 64px;
+  }
+
+  /*
+   * Figma mobile artboards (Experience / Capabilities / About):
+   * solid ink header #201b17, white logo + hamburger.
+   * Home keeps .hero-header (transparent over hero).
+   * Contact has no mobile artboard — same ink bar for consistency.
+   */
+  .site-header:not(.hero-header) {
+    background: #201b17;
+    border-bottom-color: transparent;
+    height: auto;
+    min-height: 64px;
+    padding: 18px 20px;
+  }
+
+  .site-header:not(.hero-header) .logo-name,
+  .site-header:not(.hero-header) .logo-sub {
+    color: #fff;
+  }
+
+  .site-header:not(.hero-header) .logo-sub {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .site-header:not(.hero-header) .hamburger span {
+    background: #fff;
+  }
+
+  .site-header:not(.hero-header) .logo:focus-visible,
+  .site-header:not(.hero-header) .hamburger:focus-visible {
+    outline-color: #f6f0e6;
+  }
+
+  .hamburger { display: flex; }
+  .discuss-btn { display: none; }
+
+  .main-nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(36, 31, 27, 0.97);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    z-index: 150;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .main-nav {
+    display: flex;
+  }
+
+  /* Discuss CTA inside open mobile overlay (header control stays hidden) */
+  .nav-toggle-checkbox:checked ~ .site-header .discuss-btn {
+    display: inline-flex;
+    position: fixed;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 160;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .discuss-btn-text,
+  .nav-toggle-checkbox:checked ~ .site-header .discuss-btn-arrow {
+    color: #f6f0e6;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .main-nav .nav-link,
+  .nav-toggle-checkbox:checked ~ .site-header .main-nav .nav-group > .nav-group-label {
+    color: #f6f0e6;
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .main-nav .nav-link.active {
+    opacity: 1;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .hamburger {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 200;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .hamburger span {
+    background: #fff;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .hamburger span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle-checkbox:checked ~ .site-header .hamburger span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* Mobile dropdown: accordion — closed until .nav-group.active */
+  .site-header .main-nav .nav-group {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .site-header .main-nav .nav-dropdown {
+    position: static;
+    transform: none;
+    box-shadow: none;
+    background: transparent;
+    border: none;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    transition: opacity 0.2s ease, max-height 0.2s ease;
+  }
+
+  .site-header .main-nav .nav-group.active .nav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    max-height: 280px;
+    padding: 10px 0 4px;
+  }
+
+  .site-header .main-nav .nav-dropdown a {
+    color: #f6f0e6;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 0;
+  }
+}
+
+/* Lock page scroll while mobile nav overlay is open */
+body.nav-open {
+  overflow: hidden;
+}
+
+/* Home: header overlays hero without nesting inside overflow:hidden */
+body.home-page .site-header.hero-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link,
+  .discuss-btn,
+  .nav-group > .nav-group-label,
+  .nav-dropdown,
+  .nav-dropdown a,
+  .hamburger span {
+    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

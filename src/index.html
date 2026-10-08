@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Irit Liberman — Global Material Sourcing &amp; Procurement</title>
+<meta name="description" content="Irit Liberman — global material sourcing and procurement for custom homes, hospitality, and commercial projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles/nav.css">
+<link rel="stylesheet" href="/styles/footer-cta.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --merino: #f6f0e6;
+  --spring-wood: #fbf9f4;
+  --zeus: #241f1b;
+  --ink: #201b17;
+  --makara: #84796d;
+  --nomad: #bbb1a5;
+  --soya-bean: #635b52;
+  --tea: #c9c0b5;
+  --sisal: #d9d0c5;
+  --bronco: #ada398;
+  color: var(--ink);
+  background: var(--spring-wood);
+  font-synthesis: none;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: 'Manrope', sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  height: 900px;
+  overflow: hidden;
+  color: white;
+}
+
+.hero picture,
+.hero__image,
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero__image {
+  object-fit: cover;
+  object-position: 5% center;
+  display: block;
+}
+
+.hero__veil {
+  background:
+    linear-gradient(90deg, rgb(23 16 11 / 78%) 0%, rgb(28 20 15 / 48%) 38%, rgb(22 16 12 / 22%) 58%, rgb(18 13 10 / 8%) 78%),
+    linear-gradient(180deg, rgb(20 14 10 / 55%) 0%, rgb(20 14 10 / 18%) 32%, transparent 52%, rgb(20 14 10 / 28%) 78%, rgb(20 14 10 / 58%) 100%);
+}
+
+.site-header.hero-header {
+  padding: 0 var(--page-gutter);
+}
+
+.arrow-link {
+  transition: opacity 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  max-width: 705px;
+  margin-left: var(--page-gutter);
+  padding-top: 240px;
+  padding-bottom: 126px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 33px;
+}
+
+.hero h1,
+.scale-section h2,
+.about-section h2 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+}
+
+.hero h1 {
+  font-size: 78px;
+  line-height: 0.89;
+  letter-spacing: -2.73px;
+  text-shadow: 0 2px 18px rgb(24 16 10 / 40%);
+}
+
+.hero h1 em,
+.scale-section h2 em,
+.about-section h2 em {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hero h1 em {
+  margin-top: 9px;
+}
+
+.arrow-link {
+  display: inline-flex;
+  gap: 33px;
+  padding: 12px 15px 12px 16.5px;
+  align-items: center;
+  background: var(--merino);
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.arrow-link .arrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.arrow-link:hover {
+  background: white;
+}
+
+.continue {
+  position: absolute;
+  z-index: 1;
+  bottom: 20px;
+  left: 50%;
+  display: flex;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 1.31px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+}
+
+.continue .arrow {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 19px;
+}
+
+.materials {
+  position: absolute;
+  left: 73.1%;
+  bottom: 27px;
+  z-index: 1;
+  display: flex;
+  gap: 10.5px;
+  align-items: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 1.32px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+}
+
+.materials i {
+  display: block;
+  width: 2.25px;
+  height: 2.25px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0.65;
+  font-style: normal;
+}
+
+.scale-section {
+  padding: 120px var(--page-gutter);
+  border-bottom: 0.75px solid var(--sisal);
+  background: var(--spring-wood);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 525.22px;
+  gap: 129.6px;
+}
+
+.eyebrow {
+  margin: 0 0 25px;
+  color: var(--makara);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 1.62px;
+  text-transform: uppercase;
+}
+
+.scale-section h2,
+.about-section h2 {
+  font-size: 64.5px;
+  line-height: 0.95;
+  letter-spacing: -2.26px;
+}
+
+.scale-section__details {
+  padding-top: 34.5px;
+}
+
+.intro {
+  max-width: 487.5px;
+  margin: 0 0 22px;
+  padding-bottom: 18px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 23.25px;
+  line-height: 1.25;
+}
+
+.material-list {
+  margin: 0;
+  padding: 21px 0;
+  border-top: 0.75px solid var(--nomad);
+  border-bottom: 0.75px solid var(--nomad);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 1.65px;
+  text-transform: uppercase;
+}
+
+.benefits {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 18px;
+  margin-top: 22px;
+  color: var(--soya-bean);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.25px;
+}
+
+.benefits span:not(:last-child) {
+  padding-right: 18px;
+  border-right: 0.75px solid var(--tea);
+}
+
+.about-section {
+  padding: 112.5px var(--page-gutter);
+  background: #241f1b;
+  color: var(--merino);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 112.5px;
+}
+
+.feature-image {
+  position: relative;
+  flex: 0 0 478.52px;
+  width: 478.52px;
+  height: 540px;
+  margin: 0;
+  overflow: hidden;
+}
+
+.feature-image picture,
+.feature-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.feature-image img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.feature-image__gradient {
+  position: absolute;
+  width: 478.52px;
+  height: 540px;
+  left: 0;
+  top: 0;
+  background: linear-gradient(180deg, rgba(18, 14, 11, 0) 62%, rgba(18, 14, 11, 0.58) 100%);
+  pointer-events: none;
+}
+
+.feature-image figcaption {
+  position: absolute;
+  z-index: 1;
+  left: 21px;
+  top: 510.75px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 6px;
+  font-weight: 600;
+  line-height: 9px;
+  letter-spacing: 1.32px;
+  text-transform: uppercase;
+  color: var(--merino);
+}
+
+.about-section__content {
+  width: 647.4px;
+  flex-shrink: 0;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24.68px;
+}
+
+.eyebrow--dark {
+  margin: 0;
+  color: var(--bronco);
+}
+
+.about-section h2 {
+  font-size: 66px;
+  line-height: 61.38px;
+  letter-spacing: -2.31px;
+}
+
+.about-copy {
+  position: relative;
+  width: 532.5px;
+  height: 134.45px;
+  max-width: 532.5px;
+  flex-shrink: 0;
+}
+
+.about-copy__col {
+  position: absolute;
+  width: 249.75px;
+  color: #d9d0c5;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.2px;
+}
+
+.about-copy__col--left {
+  left: 0;
+  top: 15.74px;
+}
+
+.about-copy__col--right {
+  left: 282.75px;
+  top: 15.96px;
+}
+
+.about-copy__col p { margin: 0; }
+
+.assurance {
+  width: 532.5px;
+  max-width: 532.5px;
+  margin: 0;
+  padding: 22.58px 0 21.75px;
+  border-top: 0.75px solid rgba(246, 240, 230, 0.25);
+  border-bottom: 0.75px solid rgba(246, 240, 230, 0.25);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.98px;
+  text-transform: uppercase;
+}
+
+.arrow-link--light {
+  gap: 12px;
+  padding: 6px 9px;
+  outline: 0.75px solid #636363;
+  outline-offset: -0.75px;
+  background: transparent;
+  color: var(--merino);
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 1.65px;
+}
+
+.arrow-link--light .arrow {
+  font-size: 17px;
+  line-height: 25.5px;
+}
+
+.arrow-link--light:hover {
+  background: var(--merino);
+  color: var(--ink);
+}
+
+@media (max-width: 1279px) {
+  .site-header.hero-header { padding: 0 var(--page-gutter); }
+  .hero__content { margin-left: var(--page-gutter); max-width: min(705px, calc(100% - (2 * var(--page-gutter)))); }
+  .scale-section { padding: 80px 48px; gap: 48px; grid-template-columns: 1fr minmax(0, 400px); }
+  .about-section { gap: 6%; padding: 112.5px 5%; flex-wrap: wrap; }
+  .feature-image { flex: 1 1 40%; width: auto; max-width: 100%; height: auto; aspect-ratio: 478.52 / 540; min-width: 0; }
+  .feature-image__gradient { width: 100%; height: 100%; }
+  .about-section__content { width: auto; max-width: 100%; flex: 1 1 0; min-width: 0; }
+  .about-copy { position: static; width: 100%; max-width: 100%; height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex-shrink: 1; }
+  .about-copy__col { position: static; width: auto; max-width: 100%; }
+  .assurance { width: 100%; max-width: 100%; }
+  .scale-section__details { min-width: 0; }
+}
+
+@media (max-width: 767px) {
+  .hero { height: 620px; display: flex; flex-direction: column; }
+  .site-header.hero-header { padding: 18px var(--page-gutter); height: auto; min-height: 64px; flex-shrink: 0; border-bottom: none; }
+  .hero-header .logo-sub { font-size: 8px; }
+  .hero__image { object-position: center center; }
+  .hero__content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; max-width: none; width: auto; margin: 0 var(--page-gutter); padding-top: 52px; padding-bottom: 0; gap: 24px; }
+  .hero h1 { font-size: 34px; line-height: 36px; letter-spacing: -1.1px; max-width: 342px; }
+  .hero h1 em { margin-top: 4px; }
+  .hero__content .arrow-link { background: var(--merino); color: var(--ink); width: auto; align-self: flex-start; padding: 16px 20px 16px 22px; gap: 44px; font-size: 10px; letter-spacing: 2px; }
+  .hero__content .arrow-link .arrow { font-size: 16px; line-height: 24px; }
+  .hero__content .arrow-link:hover { opacity: 0.9; background: white; }
+  .materials { display: flex; position: absolute; left: 50%; transform: translateX(-50%); right: auto; bottom: 88px; width: min(300px, calc(100% - 40px)); justify-content: center; gap: 8px; flex-wrap: wrap; text-align: center; font-size: 10px; line-height: 15px; letter-spacing: 1.2px; text-transform: none; z-index: 2; }
+  .continue { bottom: 32px; font-size: 10px; letter-spacing: 1.4px; gap: 4px; z-index: 2; color: #fff; }
+  .continue .arrow { font-size: 16px; line-height: 1; }
+  .scale-section { min-height: auto; padding: 56px 20px; grid-template-columns: 1fr; gap: 28px; }
+  .scale-section h2 { font-size: 30px; line-height: 32px; letter-spacing: -1px; }
+  .eyebrow { font-size: 10px; letter-spacing: 1.6px; margin-bottom: 0; }
+  .scale-section__details { padding-top: 0; }
+  .intro { font-size: 17px; line-height: 24px; max-width: none; margin-bottom: 0; padding-bottom: 0; }
+  .material-list { font-size: 10px; letter-spacing: 1.2px; line-height: 16px; padding: 16px 0 0; border-bottom: 0; }
+  .benefits { grid-template-columns: 1fr; gap: 10px; margin-top: 0; font-size: 10px; line-height: 15px; }
+  .benefits span:not(:last-child) { padding: 0; border-right: 0; border-bottom: 0; }
+  .about-section { flex-direction: column; gap: 28px; padding: 56px 20px 64px; min-height: auto; }
+  .about-section__content { width: 100%; }
+  .about-section h2 { font-size: 30px; line-height: 32px; letter-spacing: -1px; }
+  .feature-image { flex: none; width: 100%; height: 320px; min-height: unset; }
+  .feature-image img, .feature-image__gradient { width: 100%; height: 100%; }
+  .feature-image figcaption { top: auto; bottom: 20px; left: 18px; font-size: 6px; line-height: 9px; letter-spacing: 1.1px; }
+  .about-copy { width: 100%; height: auto; display: flex; flex-direction: column; gap: 18px; }
+  .about-copy__col { position: static; width: 100%; font-size: 16px; line-height: 23px; }
+  .assurance { width: 100%; font-size: 10px; line-height: 17px; letter-spacing: 0.4px; }
+  .arrow-link--light { font-size: 10px; line-height: 15px; }
+}
+</style>
+</head>
+<body class="home-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-checkbox">
+<header class="site-header hero-header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="Irit Liberman home">
+      <span class="logo-name">IRIT LIBERMAN</span>
+      <span class="logo-sub">GLOBAL MATERIAL SOURCING &amp; PROCUREMENT</span>
+    </a>
+    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+      <div class="nav-group">
+        <span class="nav-group-label" data-i18n="nav|experience">SELECTED EXPERIENCE</span>
+        <div class="nav-dropdown">
+          <a href="/custom-homes" data-i18n="nav|custom-homes">CUSTOM HOMES</a>
+          <a href="/commercial" data-i18n="nav|commercial">COMMERCIAL</a>
+          <a href="/hospitality" data-i18n="nav|hospitality">HOSPITALITY</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label" data-i18n="nav|capabilities">CAPABILITIES</span>
+        <div class="nav-dropdown">
+          <a href="/bending-stone" data-i18n="nav|bending-stone">1MM BENDING STONE</a>
+          <a href="/stone-decorative" data-i18n="nav|stone-blocks">STONE BLOCKS</a>
+          <a href="/furniture" data-i18n="nav|stone-furniture">STONE FURNITURE</a>
+        </div>
+      </div>
+      <a href="/about" class="nav-link" data-i18n="nav|about">ABOUT IRIT</a>
+      <a href="/contact" class="nav-link" data-i18n="nav|contact">CONTACT</a>
+    </nav>
+    <a href="/contact" class="discuss-btn">
+      <span class="discuss-btn-text" data-i18n="nav|discuss">DISCUSS A PROJECT</span>
+      <span class="discuss-btn-arrow">→</span>
+    </a>
+    <label for="nav-toggle-checkbox" class="hamburger" aria-label="Toggle menu" aria-controls="main-nav" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </label>
+  </div>
+</header>
+<main id="main-content">
+  <section class="hero" id="home">
+    <picture>
+      <source srcset="/figma_images/9a808.webp" type="image/webp">
+      <img alt="A refined hospitality interior featuring expansive natural stone walls and columns" class="hero__image" src="/figma_images/9a808.png" width="1920" height="1200" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="hero__veil"></div>
+    <div class="hero__content">
+      <h1>
+        <span data-i18n="home|hero.title">The Right Stone Is Already Out There.</span>
+        <em data-i18n="home|hero.subtitle">Let's Bring It Home.</em>
+      </h1>
+      <a class="arrow-link" href="/contact">
+        <span data-i18n="home|hero.cta">Discuss a Project</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+    <a class="continue" href="#capabilities">
+      <span data-i18n="home|hero.continue">Continue</span>
+      <span class="arrow" aria-hidden="true">↓</span>
+    </a>
+    <div class="materials" aria-label="Materials">
+      <span data-i18n="home|materials.stone">Natural Stone</span>
+      <i></i>
+      <span data-i18n="home|materials.porcelain">Porcelain Tile</span>
+      <i></i>
+      <span data-i18n="home|materials.quartz">Quartz in Substantial Quantities</span>
+    </div>
+  </section>
+
+  <section class="scale-section" id="capabilities">
+    <div class="scale-section__heading">
+      <p class="eyebrow" data-i18n="home|scale.eyebrow">01 / Project Scale</p>
+      <h2>
+        <span data-i18n="home|scale.title">When the Scale Is Right, the Possibilities Open Up.</span>
+      </h2>
+    </div>
+    <div class="scale-section__details">
+      <p class="intro" data-i18n="home|scale.intro">
+        Direct material sourcing for large custom residences, hospitality,
+        multifamily, and commercial projects — connecting your project
+        directly to trusted quarries and factories around the world.
+      </p>
+      <p class="material-list" data-i18n="home|scale.material-list">
+        Natural Stone. Porcelain Tile.<br>
+        Quartz in Substantial Quantities.
+      </p>
+      <div class="benefits">
+        <span data-i18n="home|scale.benefit1">More choice.</span>
+        <span data-i18n="home|scale.benefit2">Markup layers removed.</span>
+        <span data-i18n="home|scale.benefit3">Greater control over quality, consistency, budget, and delivery.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section" id="experience">
+    <figure class="feature-image">
+      <picture>
+        <source srcset="/figma_images/philosophy-cropped.webp" type="image/webp">
+        <img alt="Natural stone integrated throughout a refined large-scale interior" src="/figma_images/philosophy-cropped.png" width="1600" height="1805" loading="lazy" decoding="async">
+      </picture>
+      <div class="feature-image__gradient" aria-hidden="true"></div>
+      <figcaption data-i18n="home|philosophy.figcaption">Materials selected with intention</figcaption>
+    </figure>
+    <div class="about-section__content" id="about">
+      <p class="eyebrow eyebrow--dark" data-i18n="home|philosophy.eyebrow">02 / Philosophy</p>
+      <h2>
+        <span data-i18n="home|philosophy.title">Beyond What Is Readily Available.</span>
+      </h2>
+      <div class="about-copy">
+        <div class="about-copy__col about-copy__col--left">
+          <p data-i18n="home|philosophy.copy1">I believe every project has a material meant for it — and that when we work with integrity and the intention to create something beautiful, the right doors open.</p>
+        </div>
+        <div class="about-copy__col about-copy__col--right">
+          <p data-i18n="home|philosophy.copy2">From standard specifications to custom concepts, every search begins with listening — understanding the design, scale, application, budget, and what the project is meant to become.</p>
+        </div>
+      </div>
+      <p class="assurance" data-i18n="home|philosophy.assurance">
+        No pressure to settle. Just thoughtful guidance, honest
+        relationships, and the quiet confidence that the right material
+        will find its way to your project.
+      </p>
+      <div id="contact">
+        <a class="arrow-link arrow-link--light" href="/contact">
+          <span data-i18n="home|hero.cta">Discuss a Project</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+<section class="site-footer-cta" aria-label="Discuss a project">
+  <div class="site-footer-cta__copy">
+    <p class="site-footer-cta__label" data-i18n="footer|cta.label">Ready to Start?</p>
+    <p class="site-footer-cta__heading"><span data-i18n="footer|cta.heading">Let's Find the Right Material for Your Project.</span></p>
+  </div>
+  <a href="/contact" class="site-footer-cta__btn">
+    <span data-i18n="footer|cta.btn">DISCUSS A PROJECT</span>
+    <span aria-hidden="true">→</span>
+  </a>
+</section>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

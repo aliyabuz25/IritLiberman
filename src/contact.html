@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Irit Liberman — global material sourcing and procurement.">
+  <title>Contact — Irit Liberman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/styles/nav.css">
+<link rel="stylesheet" href="/styles/footer-cta.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fbf9f4; color: #201b17; font-family: 'Satoshi', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    .page-body { width: 100%; max-width: 1440px; margin: 0 auto; position: relative; min-height: calc(100vh - 81px); display: grid; grid-template-columns: 1fr minmax(280px, 375px); grid-template-rows: auto 1fr auto; align-content: stretch; }
+    .contact-hero { width: 100%; margin-top: 0; padding: var(--page-gutter); display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-end; gap: clamp(48px, 8vw, 167px); min-height: 0; align-self: end; grid-column: 1 / -1; grid-row: 2; }
+    .hero-left { display: flex; flex-direction: column; align-items: stretch; gap: 8px; flex: 1; }
+    .hero-eyebrow { font-family: 'Satoshi', sans-serif; font-size: 20px; font-weight: 400; color: #3b3833; }
+    .hero-headline { font-family: 'Satoshi', sans-serif; font-size: clamp(56px, 10vw, 140px); font-weight: 500; color: #201b17; line-height: 1; white-space: normal; }
+    @media (min-width: 1440px) { .hero-headline { white-space: nowrap; } }
+    .hero-arrow { width: min(182.96px, 18vw); height: min(182.96px, 18vw); flex-shrink: 1; align-self: flex-end; transform: rotate(-179deg); }
+    .contact-info { position: relative; top: auto; right: auto; width: 100%; max-width: 375px; padding: 105px var(--page-gutter) 24px 0; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; z-index: 10; grid-column: 2; grid-row: 1; justify-self: end; text-align: left; }
+    .info-block { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+    .info-name { font-family: 'Satoshi', sans-serif; font-size: 20px; font-weight: 500; color: #201b17; }
+    .info-specialty { font-family: 'Satoshi', sans-serif; font-size: 16px; font-weight: 400; color: #4a4742; }
+    .info-group { display: flex; flex-direction: column; gap: 8px; width: 230px; }
+    .info-label { font-family: 'Satoshi', sans-serif; font-size: 16px; font-weight: 400; color: #4a4742; }
+    .info-value { font-family: 'Satoshi', sans-serif; font-size: 20px; font-weight: 500; color: #201b17; }
+    .contact-footer-section { width: 100%; max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 30px; grid-column: 1 / -1; grid-row: 3; }
+    .contact-divider { width: min(1344px, calc(100% - 96px)); height: 1px; background: var(--nomad, #bbb1a5); flex-shrink: 0; }
+    .contact-footer { width: 100%; max-width: 100%; padding: 40px 48px; display: flex; align-items: center; gap: clamp(24px, 4vw, 118px); flex-wrap: wrap; }
+    .footer-brand { display: flex; flex-direction: column; gap: 16px; width: 351px; flex-shrink: 0; }
+    .footer-brand-name { font-family: 'Satoshi', sans-serif; font-size: 36px; font-weight: 700; color: #201b17; }
+    .footer-brand-affil { font-family: 'Satoshi', sans-serif; font-size: 14px; font-weight: 400; color: #424242; }
+    .footer-links { display: flex; align-items: center; gap: clamp(24px, 4vw, 100px); flex-wrap: wrap; min-width: 0; }
+    .footer-link { display: flex; align-items: center; gap: 16px; text-decoration: none; color: #201b17; }
+    .footer-link-text { font-family: 'Satoshi', sans-serif; font-size: 18px; font-weight: 400; text-align: center; }
+    .footer-link-arrow { width: 18px; height: 18px; flex-shrink: 0; }
+    .footer-copy { margin-left: auto; font-family: 'Satoshi', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; white-space: nowrap; }
+    @media (max-width: 1279px) {
+      .page-body { min-height: 0; display: flex; flex-direction: column; grid-template-rows: none; }
+      .contact-info { position: relative; top: auto; right: auto; width: 100%; max-width: 100%; padding: 32px var(--page-gutter) 0; order: 1; }
+      .hero-headline { font-size: clamp(56px, 8vw, 100px); white-space: normal; }
+      .contact-hero { margin-top: 48px; min-height: auto; gap: 48px; padding: 48px var(--page-gutter); order: 2; align-self: stretch; grid-row: auto; grid-column: auto; }
+      .contact-footer-section { gap: 20px; order: 3; grid-row: auto; }
+      .hero-arrow { width: min(120px, 16vw); height: min(120px, 16vw); }
+      .contact-divider { width: 100%; max-width: calc(100% - 96px); }
+      .contact-footer { gap: 48px; flex-wrap: wrap; }
+      .footer-copy { margin-left: 0; width: 100%; white-space: normal; }
+    }
+    @media (min-width: 1280px) and (max-height: 820px) {
+      .page-body { min-height: 0; display: flex; flex-direction: column; grid-template-rows: none; }
+      .contact-info { position: relative; top: auto; right: auto; width: 100%; max-width: 375px; margin-left: auto; padding: 32px var(--page-gutter) 0 0; order: 1; }
+      .contact-hero { margin-top: 48px; order: 2; align-self: stretch; grid-row: auto; }
+      .contact-footer-section { order: 3; grid-row: auto; }
+    }
+    @media (max-width: 767px) {
+      .page-body { overflow-x: hidden; }
+      .hero-headline { font-size: clamp(42px, 14vw, 56px); white-space: normal; line-height: 1.05; word-break: break-word; }
+      .hero-eyebrow { font-size: 16px; }
+      .contact-hero { margin-top: 0; padding: 40px var(--page-gutter) 24px; flex-direction: column; align-items: flex-start; min-height: auto; gap: 24px; }
+      .hero-arrow { display: none; transform: none; }
+      .contact-info { position: relative; top: auto; right: auto; width: 100%; padding: 24px var(--page-gutter) 40px; gap: 24px; }
+      .info-name, .info-value { font-size: 18px; }
+      .info-specialty, .info-label { font-size: 14px; }
+      .info-group { width: 100%; }
+      .contact-divider { width: calc(100% - 40px); }
+      .contact-footer { padding: 32px var(--page-gutter); flex-direction: column; gap: 32px; }
+      .footer-links { flex-direction: column; gap: 24px; align-items: flex-start; }
+      .footer-brand { width: 100%; }
+      .footer-copy { margin-left: 0; white-space: normal; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main-nav">Skip to navigation</a>
+<input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-checkbox">
+<header class="site-header site-header--warm">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="Irit Liberman home">
+      <span class="logo-name">IRIT LIBERMAN</span>
+      <span class="logo-sub">GLOBAL MATERIAL SOURCING &amp; PROCUREMENT</span>
+    </a>
+    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+      <div class="nav-group">
+        <span class="nav-group-label">SELECTED EXPERIENCE</span>
+        <div class="nav-dropdown">
+          <a href="/custom-homes">CUSTOM HOMES</a>
+          <a href="/commercial">COMMERCIAL</a>
+          <a href="/hospitality">HOSPITALITY</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">CAPABILITIES</span>
+        <div class="nav-dropdown">
+          <a href="/bending-stone">1MM BENDING STONE</a>
+          <a href="/stone-decorative">STONE BLOCKS</a>
+          <a href="/furniture">STONE FURNITURE</a>
+        </div>
+      </div>
+      <a href="/about" class="nav-link">ABOUT IRIT</a>
+      <a href="/contact" class="nav-link active">CONTACT</a>
+    </nav>
+    <a href="/contact" class="discuss-btn">
+      <span class="discuss-btn-text">DISCUSS A PROJECT</span>
+      <span class="discuss-btn-arrow">→</span>
+    </a>
+    <label for="nav-toggle-checkbox" class="hamburger" aria-label="Toggle menu" aria-controls="main-nav" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </label>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="contact-info">
+    <div class="info-block">
+      <div class="info-name">IRIT LIBERMAN</div>
+      <div class="info-specialty">HOSPITALITY · RESIDENTIAL · COMMERCIAL</div>
+    </div>
+    <div class="info-group">
+      <span class="info-label">Phone Number</span>
+      <a href="tel:+15628334062" class="info-value">+1 (562) 833-4062</a>
+    </div>
+    <div class="info-group">
+      <span class="info-label">Email Address</span>
+      <a href="mailto:irit@eskandaristone.com" class="info-value">irit@eskandaristone.com</a>
+    </div>
+    <div class="info-group">
+      <span class="info-label">Address</span>
+      <div class="info-value">239 S Robertson Blvd,<br>Ste 10<br>Beverly Hills, CA</div>
+    </div>
+  </div>
+
+  <div class="contact-hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">GOT A PROJECT IN MIND?</p>
+      <h1 class="hero-headline">LET'S TALK</h1>
+    </div>
+    <svg class="hero-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M6 6L18 18M18 18H8M18 18V8" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="contact-footer-section">
+    <div class="contact-divider"></div>
+    <footer class="contact-footer">
+      <div class="footer-brand">
+        <div class="footer-brand-name">ESKANDARI STONE</div>
+        <div class="footer-brand-affil">AFFILIATED WITH ESKANDARI STONE</div>
+      </div>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com" class="footer-link" target="_blank" rel="noopener">
+          <span class="footer-link-text">LINKEDIN</span>
+          <svg class="footer-link-arrow" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 13.5L13.5 4.5M13.5 4.5H7.5M13.5 4.5V10.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://www.instagram.com" class="footer-link" target="_blank" rel="noopener">
+          <span class="footer-link-text">INSTAGRAM</span>
+          <svg class="footer-link-arrow" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 13.5L13.5 4.5M13.5 4.5H7.5M13.5 4.5V10.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="mailto:irit@eskandaristone.com" class="footer-link">
+          <span class="footer-link-text">EMAIL</span>
+          <svg class="footer-link-arrow" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 13.5L13.5 4.5M13.5 4.5H7.5M13.5 4.5V10.5" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="footer-copy">© 2026 IRIT LIBERMAN</div>
+    </footer>
+  </div>
+</div>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

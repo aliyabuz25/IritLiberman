@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Irit Liberman — global material sourcing and procurement.">
+<title>About Irit — Irit Liberman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles/nav.css">
+<link rel="stylesheet" href="/styles/footer-cta.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 100%; background: #f4f0e8; overflow-x: hidden; }
+.about-page { font-family: 'Inter', sans-serif; background: #f4f0e8; max-width: 1440px; margin: 0 auto; }
+.about-top { display: flex; align-items: flex-start; gap: 26px; max-width: 100%; }
+.about-top-left { flex: 1 1 52%; max-width: min(740px, 100%); min-width: 0; padding: 132px 0 0 var(--page-gutter); }
+.about-label { display: none; }
+.about-headline { margin-top: 0; font-weight: 400; font-size: clamp(48px, 6.25vw, 90px); line-height: normal; letter-spacing: -3.0375px; text-transform: uppercase; color: #1e1b17; max-width: 692px; }
+.about-intro { margin-top: 70px; max-width: 692px; display: flex; flex-direction: column; gap: 40px; }
+.about-intro p { font-size: 22px; line-height: 36px; color: #3f3f3f; }
+.about-top-right { flex: 0 1 46%; width: min(674px, 46%); max-width: 100%; min-width: 0; padding: 36px var(--page-gutter) 0 0; }
+.about-portrait { width: min(626.4px, 100%); max-width: 100%; height: auto; aspect-ratio: 626.4 / 768.8; object-fit: cover; display: block; }
+.about-signature { margin-top: 21px; display: flex; flex-direction: column; gap: 12px; }
+.sig-name { font-size: 24px; letter-spacing: 0.48px; color: #201b17; text-transform: uppercase; }
+.sig-role { font-size: 22px; letter-spacing: 0.44px; color: #535353; }
+.about-wide { border-top: 0.75px solid #c5c5c5; padding: 80px var(--page-gutter) 68px; margin-top: 82px; }
+.about-wide p { font-size: 32px; line-height: 56px; color: #3e3830; }
+.about-quote { background: #25211d; padding: 70px 129.6px; }
+.about-quote p { font-style: italic; font-size: 50px; line-height: 55.44px; color: #f5f0e7; text-align: center; }
+.about-bring { background: #f4f0e8; padding: 82.5px var(--page-gutter) 93.75px; display: flex; flex-direction: column; min-height: 439.894px; }
+.bring-label { font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: #8a7e6b; margin-bottom: 24px; }
+.bring-grid { display: flex; align-items: stretch; border-top: 0.75px solid rgba(30,27,23,0.3); }
+.bring-grid article { flex: 1; display: flex; flex-direction: column; border-bottom: 0.75px solid rgba(30,27,23,0.3); padding: 25.5px 19.5px 33.19px; min-height: 187.5px; }
+.bring-grid article:last-child { padding-bottom: 51.75px; }
+.bring-grid article + article { border-left: 0.75px solid rgba(30,27,23,0.3); }
+.article-num { font-size: 9px; line-height: 14px; letter-spacing: 1.35px; color: #8a7e6b; }
+.article-title { margin-top: 27px; font-size: 18.75px; line-height: 20.625px; text-transform: uppercase; color: #1e1b17; }
+.article-text { margin-top: 11.85px; font-size: 12px; line-height: 20px; color: #5d5448; }
+.about-cta { background: #27221d; padding: 86.25px var(--page-gutter); display: flex; flex-direction: column; align-items: center; gap: 50px; }
+.cta-label { display: none; }
+.cta-heading { font-weight: 400; font-size: clamp(36px, 5vw, 69px); line-height: 1.05; text-transform: uppercase; color: #f5f0e8; text-align: center; white-space: normal; }
+.cta-btn { display: inline-flex; align-items: center; gap: 22px; background: #f4f0e8; padding: 24px 24px 21px; text-decoration: none; }
+.cta-btn-text { font-weight: 500; font-size: 16px; letter-spacing: 1.71px; text-transform: uppercase; color: #211d19; }
+.cta-btn-arrow { font-size: 18px; line-height: 27px; color: #211d19; }
+@media (max-width: 1279px) {
+  .about-top { flex-wrap: wrap; overflow-x: clip; }
+  .about-headline { font-size: clamp(40px, 5vw, 64px); letter-spacing: -2px; max-width: none; }
+  .about-intro { max-width: none; }
+  .about-intro p { font-size: 18px; line-height: 30px; }
+  .about-top-left { flex: 1 1 280px; max-width: none; width: auto; min-width: 0; padding: 80px var(--page-gutter) 0 var(--page-gutter); }
+  .about-top-right { flex: 1 1 240px; width: auto; max-width: 100%; min-width: 0; padding: 36px var(--page-gutter) 0 var(--page-gutter); }
+  .about-portrait { width: 100%; height: auto; aspect-ratio: 626.4 / 768.8; }
+  .about-wide p { font-size: 24px; line-height: 42px; }
+  .about-quote { padding: 56px var(--page-gutter); }
+  .about-quote p { font-size: 34px; line-height: 40px; }
+  .about-bring { padding: 64px var(--page-gutter); }
+  .bring-grid { flex-wrap: wrap; }
+  .article-title { font-size: 16px; }
+  .about-cta { padding: 64px var(--page-gutter); }
+  .cta-heading { font-size: clamp(36px, 4.5vw, 48px); line-height: 1.05; }
+}
+@media (max-width: 900px) and (min-width: 768px) {
+  .about-top { flex-direction: column; gap: 24px; }
+  .about-top-left, .about-top-right { width: 100%; flex: 1 1 auto; padding-left: var(--page-gutter); padding-right: var(--page-gutter); }
+  .about-portrait { max-width: 420px; }
+}
+@media (max-width: 767px) {
+  .about-top { flex-direction: column; gap: 20px; padding: 0 var(--page-gutter); }
+  .about-top-left { display: contents; padding: 0; flex: none; max-width: none; }
+  .about-headline { order: 1; margin-top: 56px; font-size: 48px; line-height: 1.05; letter-spacing: -1.5px; max-width: none; }
+  .about-top-right { order: 2; width: 100%; padding: 0; }
+  .about-portrait { width: 100%; max-width: 342px; height: auto; aspect-ratio: 342 / 420; }
+  .about-signature { margin-top: 20px; gap: 4px; }
+  .sig-name { font-size: 14px; letter-spacing: 0.4px; }
+  .sig-role { font-size: 13px; letter-spacing: 0; }
+  .about-intro { order: 3; margin-top: 20px; gap: 20px; max-width: none; }
+  .about-intro p { font-size: 16px; line-height: 24px; }
+  .about-wide { padding: 48px var(--page-gutter); margin-top: 0; }
+  .about-wide p { font-size: 18px; line-height: 28px; }
+  .about-quote { padding: 48px var(--page-gutter); }
+  .about-quote p { font-size: 28px; line-height: 34px; }
+  .about-bring { padding: 48px var(--page-gutter); gap: 0; min-height: 0; }
+  .bring-grid { flex-direction: column; }
+  .bring-grid article { padding: 24px 0; min-height: 0; }
+  .bring-grid article:last-child { padding-bottom: 24px; }
+  .bring-grid article + article { border-left: none; border-top: 0.75px solid rgba(30,27,23,0.3); }
+  .article-num { font-size: 9px; line-height: 14px; letter-spacing: 1.2px; }
+  .article-title { margin-top: 12px; font-size: 17px; }
+  .article-text { font-size: 13px; line-height: 20px; }
+  .about-cta { padding: 56px var(--page-gutter); gap: 32px; }
+  .cta-heading { font-size: 34px; line-height: 34px; white-space: normal; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-nav">Skip to navigation</a>
+<input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-checkbox">
+<header class="site-header site-header--warm">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="Irit Liberman home">
+      <span class="logo-name">IRIT LIBERMAN</span>
+      <span class="logo-sub">GLOBAL MATERIAL SOURCING &amp; PROCUREMENT</span>
+    </a>
+    <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+      <div class="nav-group">
+        <span class="nav-group-label">SELECTED EXPERIENCE</span>
+        <div class="nav-dropdown">
+          <a href="/custom-homes">CUSTOM HOMES</a>
+          <a href="/commercial">COMMERCIAL</a>
+          <a href="/hospitality">HOSPITALITY</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">CAPABILITIES</span>
+        <div class="nav-dropdown">
+          <a href="/bending-stone">1MM BENDING STONE</a>
+          <a href="/stone-decorative">STONE BLOCKS</a>
+          <a href="/furniture">STONE FURNITURE</a>
+        </div>
+      </div>
+      <a href="/about" class="nav-link active">ABOUT IRIT</a>
+      <a href="/contact" class="nav-link">CONTACT</a>
+    </nav>
+    <a href="/contact" class="discuss-btn">
+      <span class="discuss-btn-text">DISCUSS A PROJECT</span>
+      <span class="discuss-btn-arrow">→</span>
+    </a>
+    <label for="nav-toggle-checkbox" class="hamburger" aria-label="Toggle menu" aria-controls="main-nav" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </label>
+  </div>
+</header>
+
+<main class="about-page">
+  <section class="about-top">
+    <div class="about-top-left">
+      <h1 class="about-headline">EXPERIENCE MATTERS.</h1>
+      <div class="about-intro">
+        <p>Beautiful material is only the beginning. Irit knows what can go wrong between selection and installation, and how to prevent it.</p>
+        <p>From sourcing and approvals through production, quality control, and delivery, she manages the details that protect the design, budget, and schedule. Clients get one experienced point of contact, and the confidence that nothing important is being overlooked.</p>
+      </div>
+    </div>
+    <div class="about-top-right">
+      <picture>
+        <source srcset="/figma_images/bb50f.webp" type="image/webp">
+        <img class="about-portrait" src="/figma_images/bb50f.png" alt="Irit Liberman" width="1260" height="1546" decoding="async" fetchpriority="high">
+      </picture>
+      <div class="about-signature">
+        <div class="sig-name">IRIT LIBERMAN</div>
+        <div class="sig-role">Material Sourcing &amp; Procurement Specialist</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-wide">
+    <p>Through her work with Eskandari Stone, Irit connects deep industry knowledge with trusted access to quarries and factories worldwide — sourcing natural stone, porcelain tile, and large quantities of quartz for projects that demand exceptional materials and substantial volume.</p>
+  </section>
+
+  <section class="about-quote">
+    <p>Experience that sees the whole project.</p>
+  </section>
+
+  <section class="about-bring">
+    <p class="bring-label">What I Bring</p>
+    <div class="bring-grid">
+      <article>
+        <div class="article-num">01</div>
+        <h3 class="article-title">15+ YEARS IN THE FIELD</h3>
+        <p class="article-text">More than 15 years inside stone fabrication and installation have sharpened her eye for what can go wrong. She catches potential problems long before they reach the jobsite.</p>
+      </article>
+      <article>
+        <div class="article-num">02</div>
+        <h3 class="article-title">GLOBAL QUARRY ACCESS</h3>
+        <p class="article-text">Direct relationships with trusted quarries and factories worldwide give clients greater selection, stronger value, and a more direct path from source to project.</p>
+      </article>
+      <article>
+        <div class="article-num">03</div>
+        <h3 class="article-title">EXECUTION INSIGHT</h3>
+        <p class="article-text">She translates design intent into material decisions, accounting for fabrication, installation, quantities, coordination, budget, and schedule.</p>
+      </article>
+      <article>
+        <div class="article-num">04</div>
+        <h3 class="article-title">END-TO-END DELIVERY</h3>
+        <p class="article-text">She manages comprehensive logistics, tracking the material through every approval, production run, and quality check, all the way to final delivery so your team is never left managing the gaps.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="about-cta">
+    <h2 class="cta-heading">FIND WHAT YOU'RE LOOKING FOR.</h2>
+    <a href="/contact" class="cta-btn">
+      <span class="cta-btn-text">DISCUSS A PROJECT</span>
+      <span class="cta-btn-arrow">→</span>
+    </a>
+  </section>
+</main>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

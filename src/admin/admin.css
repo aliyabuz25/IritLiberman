@@ -1,0 +1,230 @@
+/* Base Overrides for AdminLTE Customization */
+body, .wrapper, .main-header, .main-sidebar, .content-wrapper, .card, .btn, .form-control {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth section transitions */
+#app .content-wrapper > .content section > .container-fluid > div[id^="sec-"] {
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════
+   OctoCMS Lite — Sidebar & Layout
+═══════════════════════════════════════════════════ */
+
+/* Sidebar base */
+.main-sidebar {
+  background: #0f1117 !important;
+  border-right: none !important;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: width, transform;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.2) !important;
+}
+.main-sidebar .sidebar {
+  background: #0f1117 !important;
+  scroll-behavior: smooth;
+  padding-bottom: 2rem;
+}
+
+/* Brand */
+.brand-link {
+  background: #080b10 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  transition: background 0.15s ease !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+}
+.brand-link:hover {
+  background: #111520 !important;
+}
+
+/* User panel */
+.user-panel {
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  margin: 0 0 10px 0 !important;
+  padding: 16px 20px !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-panel .info {
+  padding: 0 !important;
+}
+.user-panel .info a {
+  color: rgba(255,255,255,0.5) !important;
+  font-size: .8rem;
+  letter-spacing: .04em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Nav links */
+.nav-sidebar {
+  padding: 0 10px !important;
+}
+.nav-sidebar .nav-icon {
+  display: none !important;
+}
+.nav-sidebar .nav-link {
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease !important;
+  border-radius: 8px !important;
+  margin: 4px 0 !important;
+  padding: 10px 14px !important;
+  color: rgba(255,255,255,0.65) !important;
+  font-size: .88rem !important;
+  font-weight: 500 !important;
+  display: block;
+}
+.nav-sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+.nav-sidebar .nav-link.active {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+.nav-sidebar .nav-link:active {
+  transform: scale(0.98);
+}
+.nav-header {
+  color: rgba(255,255,255,0.25) !important;
+  font-size: .65rem !important;
+  letter-spacing: .15em !important;
+  padding: 1.5rem 1rem .5rem !important;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Content wrapper shift */
+.content-wrapper,
+.main-footer {
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: #f6f8fb !important;
+}
+
+/* Top navbar */
+.main-header.navbar {
+  border-bottom: 1px solid #eaedf2 !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
+  background: #fff !important;
+}
+
+/* Content header */
+.content-header {
+  background: #fff;
+  border-bottom: 1px solid #eaedf2;
+  padding: 14px 24px !important;
+}
+.content-header h1 {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #1a1f36 !important;
+}
+
+/* Cards */
+.card {
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04) !important;
+  transition: none !important;
+}
+.card-header {
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 12px 18px !important;
+  background: #fff !important;
+}
+.card-title {
+  font-weight: 700 !important;
+  font-size: .88rem !important;
+  color: #1a1f36 !important;
+}
+
+/* Small boxes */
+.small-box {
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+.small-box h3 {
+  font-size: 2rem !important;
+}
+.small-box-footer {
+  font-size: .78rem !important;
+}
+
+/* Faster card renders */
+.card {
+  transition: none !important;
+}
+
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-msg {
+  background: #343a40;
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s forwards;
+}
+
+.toast-error { background: #dc3545; }
+.toast-warning { background: #ffc107; color: #1f2d3d; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(1rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.i18n-input.changed {
+  border-color: #ffc107;
+  background-color: #fff8e5;
+}
+
+.key-code {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 85%;
+  color: #e83e8c;
+}
+
+/* Make sure hidden logic works seamlessly */
+.d-none { display: none !important; }
+
+/* ── User Modals ── */
+#modal-add-user,
+#modal-change-pass {
+  animation: none;
+}
+
+#modal-box,
+#modal-pass-box {
+  will-change: transform, opacity;
+}
