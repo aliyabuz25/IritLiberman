@@ -3,6 +3,7 @@ import session from 'express-session'
 import bcrypt from 'bcryptjs'
 import multer from 'multer'
 import fs from 'fs'
+import compression from 'compression'
 import { createServer as createViteServer } from 'vite'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
@@ -36,6 +37,7 @@ function requireAuth(req, res, next) {
 async function main() {
   const app = express()
 
+  app.use(compression())
   app.use(express.json())
   app.use(session({
     secret: process.env.SESSION_SECRET || 'nigar-secret-2025',
@@ -159,17 +161,8 @@ async function main() {
 
   // Pages
   app.get('/api/admin/pages', requireAuth, (_req, res) => {
-    res.json([
-      { name: 'Home', url: '/' },
-      { name: 'Custom Homes', url: '/custom-homes' },
-      { name: 'Commercial', url: '/commercial' },
-      { name: 'Hospitality', url: '/hospitality' },
-      { name: '1MM Bending Stone', url: '/bending-stone' },
-      { name: 'Furniture', url: '/furniture' },
-      { name: 'Stone Decorative', url: '/stone-decorative' },
-      { name: 'About', url: '/about' },
-      { name: 'Contact', url: '/contact' }
-    ])
+    const rows = db.prepare('SELECT slug, name, url FROM pages ORDER BY id').all()
+    res.json(rows)
   })
 
   // Messages
@@ -182,7 +175,14 @@ async function main() {
     res.json({ ok: true })
   })
 
+  app.patch('/api/admin/messages/read-all', requireAuth, (_req, res) => {
+    db.prepare('UPDATE messages SET read = 1 WHERE read = 0').run()
+    res.json({ ok: true })
+  })
+
   app.delete('/api/admin/messages/:id', requireAuth, (req, res) => {
+    const row = db.prepare('SELECT id FROM messages WHERE id = ?').get(req.params.id)
+    if (!row) return res.status(404).json({ error: 'Message not found.' })
     queries.deleteMessage.run(req.params.id)
     res.json({ ok: true })
   })
@@ -253,6 +253,50 @@ async function main() {
     res.json({ totalMsgs, unreadMsgs, i18nKeys, recent, daily })
   })
 
+  // Settings / system info
+  app.get('/api/admin/system', requireAuth, (_req, res) => {
+    const dbFile = resolve(__dirname, 'data/nigar.db')
+    let dbSize = 0
+    try { dbSize = fs.statSync(dbFile).size } catch {}
+
+    const msgCount   = db.prepare('SELECT COUNT(*) as c FROM messages').get().c
+    const userCount  = db.prepare('SELECT COUNT(*) as c FROM users').get().c
+    const i18nCount  = db.prepare('SELECT COUNT(*) as c FROM i18n').get().c
+    const imageCount = (() => {
+      try { return fs.readdirSync(uploadDir).filter(f => /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(f)).length } catch { return 0 }
+    })()
+
+    res.json({
+      uptime: process.uptime(),
+      nodeVersion: process.version,
+      platform: process.platform,
+      dbSizeBytes: dbSize,
+      messages: msgCount,
+      users: userCount,
+      i18nKeys: i18nCount,
+      images: imageCount,
+      buildDate: new Date().toISOString()
+    })
+  })
+
+  // Export messages as CSV
+  app.get('/api/admin/export/messages', requireAuth, (_req, res) => {
+    const rows = db.prepare('SELECT id, name, email, message, read, created_at FROM messages ORDER BY created_at DESC').all()
+    const header = ['ID', 'Name', 'Email', 'Message', 'Read', 'Date']
+    const csv = [header, ...rows.map(r => [
+      r.id,
+      `"${(r.name||'').replace(/"/g,'""')}"`,
+      `"${(r.email||'').replace(/"/g,'""')}"`,
+      `"${(r.message||'').replace(/"/g,'""')}"`,
+      r.read ? 'Yes' : 'No',
+      r.created_at
+    ])].map(row => row.join(',')).join('\n')
+
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename="messages.csv"')
+    res.send(csv)
+  })
+
   // SEO
   app.get('/api/admin/seo', requireAuth, (_req, res) => {
     const rows = queries.getSeoAll.all()
@@ -267,9 +311,9 @@ async function main() {
   })
 
   app.put('/api/admin/seo', requireAuth, (req, res) => {
-    const { page, title, description, og_title, og_description, og_image, robots, canonical } = req.body
+    const { page, title, description, og_title, og_description, og_image, robots, canonical, tw_title, tw_description, tw_image } = req.body
     if (!page) return res.status(400).json({ error: 'page is required' })
-    queries.upsertSeo.run(page, title||'', description||'', og_title||'', og_description||'', og_image||'', robots||'index, follow', canonical||'')
+    queries.upsertSeo.run(page, title||'', description||'', og_title||'', og_description||'', og_image||'', robots||'index, follow', canonical||'', tw_title||'', tw_description||'', tw_image||'')
     res.json({ ok: true })
   })
 
@@ -279,6 +323,11 @@ async function main() {
       server: { middlewareMode: true },
       appType: 'mpa',
     })
+
+    // Serve public images with cache headers in dev
+    app.use('/figma_images', express.static(resolve(__dirname, 'public/figma_images'), {
+      maxAge: '7d'
+    }))
 
     const CLEAN_PAGES = ['custom-homes','commercial','hospitality','bending-stone','furniture','stone-decorative','about','contact']
 
@@ -316,6 +365,11 @@ async function main() {
       next()
     })
 
+    // Long-lived cache for images
+    app.use('/figma_images', express.static(resolve(distPath, 'figma_images'), {
+      maxAge: '30d',
+      immutable: true
+    }))
     app.use(express.static(distPath))
     PROD_PAGES.forEach(slug => {
       app.get('/' + slug, (_req, res) => res.sendFile(resolve(distPath, slug + '.html')))

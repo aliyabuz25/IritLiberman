@@ -198,3 +198,12 @@ body.lightbox-open {
     font-size: 16px;
   }
 }
+
+/* Performance hints */
+.lightbox-overlay {
+  will-change: opacity, visibility;
+  contain: layout style paint;
+}
+.lightbox-img {
+  will-change: transform;
+}

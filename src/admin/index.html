@@ -271,10 +271,13 @@
             <div class="card-header d-flex justify-content-between align-items-center">
               <h3 class="card-title">Project Images</h3>
               <div class="card-tools d-flex" style="gap:6px;">
-                <select id="proj-category-filter" class="form-control form-control-sm" style="width:200px;" onchange="loadProjectImages()">
+                <select id="proj-category-filter" class="form-control form-control-sm" style="width:220px;" onchange="loadProjectImages()">
                   <option value="custom-homes">Custom Homes</option>
                   <option value="hospitality">Hospitality</option>
                   <option value="commercial">Commercial</option>
+                  <option value="bending-stone">1MM Bending Stone</option>
+                  <option value="furniture">Stone Furniture</option>
+                  <option value="stone-blocks">Stone Blocks</option>
                 </select>
               </div>
             </div>
@@ -307,16 +310,18 @@
         <!-- Messages -->
         <div id="sec-messages" class="d-none">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Inbox</h3>
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" onclick="loadMessages()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <div class="card-header d-flex align-items-center flex-wrap" style="gap:8px;">
+              <h3 class="card-title mb-0">Inbox</h3>
+              <input id="msg-search" type="text" class="form-control form-control-sm ml-2" placeholder="Search messages..." style="width:200px;" oninput="renderMessages()">
+              <div class="card-tools ml-auto d-flex" style="gap:6px;">
+                <button class="btn btn-sm btn-default" onclick="markAllRead()"><i class="fas fa-check-double mr-1"></i>Mark All Read</button>
+                <button class="btn btn-sm btn-tool" onclick="loadMessages()"><i class="fas fa-sync-alt"></i></button>
               </div>
             </div>
             <div class="card-body p-0">
               <div class="table-responsive">
-                <table class="table table-hover text-nowrap">
-                  <thead><tr><th>Status</th><th>Sender</th><th>Date</th><th>Message</th><th>Actions</th></tr></thead>
+                <table class="table table-hover">
+                  <thead><tr><th style="width:40px;">Status</th><th>Sender</th><th style="width:140px;">Date</th><th>Message</th><th style="width:130px;">Actions</th></tr></thead>
                   <tbody id="msg-list">
                     <tr><td colspan="5" class="text-center text-muted p-4">Loading...</td></tr>
                   </tbody>
@@ -404,6 +409,10 @@
                 </div>
                 <small class="text-muted">Minimum 6 characters</small>
               </div>
+              <div class="form-group">
+                <label style="font-weight:600;font-size:.85rem;color:#555;">Confirm Password</label>
+                <input type="password" id="modal-user-pass-confirm" class="form-control" placeholder="Repeat password" autocomplete="new-password">
+              </div>
               <div style="display:flex;gap:8px;margin-top:1.25rem;">
                 <button onclick="closeAddUserModal()" class="btn btn-default flex-fill">Cancel</button>
                 <button onclick="createUserModal()" class="btn btn-primary flex-fill" id="modal-create-btn">
@@ -483,12 +492,12 @@
         <!-- Settings -->
         <div id="sec-settings" class="d-none">
           <div class="card">
-            <div class="card-header"><h3 class="card-title">Security</h3></div>
-            <div class="card-body">
-              <div class="callout callout-info">
-                <h5>Passwords are secure</h5>
-                <p>All admin passwords are hashed with bcrypt. To force-reset a password, set the <code>ADMIN_PASS</code> environment variable and restart the server, or use the <strong>Admin Accounts</strong> tab.</p>
-              </div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h3 class="card-title mb-0">Settings & System</h3>
+              <button class="btn btn-sm btn-tool" onclick="loadSettings()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div class="card-body" id="settings-content">
+              <div class="text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>
             </div>
           </div>
         </div>

@@ -530,3 +530,15 @@ body.home-page .site-header.hero-header {
     scroll-behavior: auto;
   }
 }
+
+/* Performance hints */
+.site-header {
+  will-change: auto;
+  contain: layout style;
+}
+.main-nav {
+  contain: layout style;
+}
+.nav-dropdown {
+  will-change: opacity, visibility;
+}

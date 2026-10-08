@@ -45,16 +45,24 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS seo (
-    page        TEXT PRIMARY KEY,
-    title       TEXT DEFAULT '',
-    description TEXT DEFAULT '',
-    og_title    TEXT DEFAULT '',
+    page           TEXT PRIMARY KEY,
+    title          TEXT DEFAULT '',
+    description    TEXT DEFAULT '',
+    og_title       TEXT DEFAULT '',
     og_description TEXT DEFAULT '',
-    og_image    TEXT DEFAULT '',
-    robots      TEXT DEFAULT 'index, follow',
-    canonical   TEXT DEFAULT ''
+    og_image       TEXT DEFAULT '',
+    robots         TEXT DEFAULT 'index, follow',
+    canonical      TEXT DEFAULT '',
+    tw_title       TEXT DEFAULT '',
+    tw_description TEXT DEFAULT '',
+    tw_image       TEXT DEFAULT ''
   );
 `)
+
+// Migrations — add columns that may not exist in older DBs
+;['tw_title','tw_description','tw_image'].forEach(col => {
+  try { db.exec(`ALTER TABLE seo ADD COLUMN ${col} TEXT DEFAULT ''`) } catch {}
+})
 
 // Seed admin
 const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get()
@@ -306,12 +314,13 @@ export const queries = {
   getSeoAll:    db.prepare('SELECT * FROM seo'),
   getSeoByPage: db.prepare('SELECT * FROM seo WHERE page=?'),
   upsertSeo:    db.prepare(`
-    INSERT INTO seo (page,title,description,og_title,og_description,og_image,robots,canonical)
-    VALUES (?,?,?,?,?,?,?,?)
+    INSERT INTO seo (page,title,description,og_title,og_description,og_image,robots,canonical,tw_title,tw_description,tw_image)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(page) DO UPDATE SET
       title=excluded.title, description=excluded.description,
       og_title=excluded.og_title, og_description=excluded.og_description,
-      og_image=excluded.og_image, robots=excluded.robots, canonical=excluded.canonical
+      og_image=excluded.og_image, robots=excluded.robots, canonical=excluded.canonical,
+      tw_title=excluded.tw_title, tw_description=excluded.tw_description, tw_image=excluded.tw_image
   `),
 
   // I18N

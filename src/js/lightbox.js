@@ -43,6 +43,15 @@
         title: title,
         focusEl: card,
       });
+
+      // Extra images attached to this card via data-extra="url1,url2"
+      const extras = card.getAttribute('data-extra')
+      if (extras) {
+        extras.split(',').map(s => s.trim()).filter(Boolean).forEach(src => {
+          items.push({ src, alt: title, title, focusEl: card })
+        })
+      }
+
       if (!card.getAttribute('aria-label')) {
         card.setAttribute('aria-label', `View ${title || 'project image'}`);
       }

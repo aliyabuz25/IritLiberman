@@ -116,6 +116,7 @@ function showSection(name, el) {
   if (name === 'pages' && !_sectionLoaded.pages) { loadPages(); _sectionLoaded.pages = true }
   if (name === 'seo' && !_sectionLoaded.seo) { loadSeo(); _sectionLoaded.seo = true }
   if (name === 'projects') loadProjectImages()
+  if (name === 'settings') loadSettings()
   
   return false
 }
@@ -192,85 +193,104 @@ function renderCharts(s) {
     counts.push(found ? found.count : 0)
   }
 
-  // Messages line chart
+  // Messages line chart — update data in-place to avoid flicker
   const ctxLine = document.getElementById('chart-messages')
   if (ctxLine) {
-    if (_chartMessages) _chartMessages.destroy()
-    _chartMessages = new Chart(ctxLine, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Messages',
-          data: counts,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37,99,235,0.08)',
-          borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 3,
-          pointBackgroundColor: '#2563eb',
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
-          y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+    if (_chartMessages) {
+      _chartMessages.data.labels = labels
+      _chartMessages.data.datasets[0].data = counts
+      _chartMessages.update('none')
+    } else {
+      _chartMessages = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Messages',
+            data: counts,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.08)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#2563eb',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+            y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+          }
         }
-      }
-    })
+      })
+    }
   }
 
   // Doughnut — read vs unread
   const ctxDo = document.getElementById('chart-status')
   if (ctxDo) {
-    if (_chartStatus) _chartStatus.destroy()
     const read   = (s.totalMsgs || 0) - (s.unreadMsgs || 0)
     const unread = s.unreadMsgs || 0
-    _chartStatus = new Chart(ctxDo, {
-      type: 'doughnut',
-      data: {
-        labels: ['Read', 'Unread'],
-        datasets: [{
-          data: [read, unread],
-          backgroundColor: ['#10b981', '#2563eb'],
-          borderWidth: 0,
-          hoverOffset: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+    if (_chartStatus) {
+      _chartStatus.data.datasets[0].data = [read, unread]
+      _chartStatus.update('none')
+    } else {
+      _chartStatus = new Chart(ctxDo, {
+        type: 'doughnut',
+        data: {
+          labels: ['Read', 'Unread'],
+          datasets: [{
+            data: [read, unread],
+            backgroundColor: ['#10b981', '#2563eb'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+          }
         }
-      }
-    })
+      })
+    }
   }
 }
 
 // Messages
+let _allMessages = []
+
 async function loadMessages() {
-  const msgs = await fetch('/api/admin/messages').then(r => r.json()).catch(() => [])
-  
-  const unreadCount = msgs.filter(m => !m.read).length
+  _allMessages = await fetch('/api/admin/messages').then(r => r.json()).catch(() => [])
+  updateMsgBadge()
+  renderMessages()
+}
+window.loadMessages = loadMessages
+
+function updateMsgBadge() {
+  const unreadCount = _allMessages.filter(m => !m.read).length
   const badge = document.getElementById('msg-badge')
   if (badge) {
-    if (unreadCount > 0) {
-      badge.textContent = unreadCount
-      badge.classList.remove('d-none')
-    } else {
-      badge.classList.add('d-none')
-    }
+    if (unreadCount > 0) { badge.textContent = unreadCount; badge.classList.remove('d-none') }
+    else badge.classList.add('d-none')
   }
+}
 
+function renderMessages() {
   const list = document.getElementById('msg-list')
+  const filter = (document.getElementById('msg-search')?.value || '').toLowerCase()
+  const msgs = filter
+    ? _allMessages.filter(m => m.name.toLowerCase().includes(filter) || m.email.toLowerCase().includes(filter) || m.message.toLowerCase().includes(filter))
+    : _allMessages
+
   if (!msgs.length) {
-    list.innerHTML = '<tr><td colspan="5" class="text-center text-muted p-4">No messages yet.</td></tr>'
+    list.innerHTML = `<tr><td colspan="5" class="text-center text-muted p-4">${filter ? 'No messages match your search.' : 'No messages yet.'}</td></tr>`
     return
   }
 
@@ -283,29 +303,57 @@ async function loadMessages() {
         <strong>${esc(m.name)}</strong><br>
         <small class="text-muted"><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></small>
       </td>
-      <td class="text-muted"><small>${new Date(m.created_at).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })}</small></td>
+      <td class="text-muted"><small>${new Date(m.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</small></td>
       <td style="white-space:pre-wrap; font-size:14px; max-width: 400px;">${esc(m.message)}</td>
-      <td class="align-middle">
-        ${!m.read ? `<button onclick="markRead(${m.id})" class="btn btn-sm btn-default"><i class="fas fa-check"></i> Mark Read</button>` : ''}
+      <td class="align-middle" style="white-space:nowrap;">
+        ${!m.read ? `<button onclick="markRead(${m.id})" class="btn btn-sm btn-default mr-1"><i class="fas fa-check"></i> Mark Read</button>` : ''}
         <button onclick="deleteMsg(${m.id})" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`).join('')
 }
-window.loadMessages = loadMessages
+window.renderMessages = renderMessages
 
 async function markRead(id) {
   await fetch(`/api/admin/messages/${id}/read`, { method: 'PATCH' })
-  loadMessages()
+  const msg = _allMessages.find(m => m.id === id)
+  if (msg) msg.read = 1
+  updateMsgBadge()
+  renderMessages()
   loadDashboard()
 }
 window.markRead = markRead
 
+async function markAllRead() {
+  const unread = _allMessages.filter(m => !m.read)
+  if (!unread.length) { toast('All messages are already read.', 'warning'); return }
+  const res = await fetch('/api/admin/messages/read-all', { method: 'PATCH' })
+  if (res.ok) {
+    _allMessages.forEach(m => m.read = 1)
+    updateMsgBadge()
+    renderMessages()
+    loadDashboard()
+    toast(`Marked ${unread.length} message(s) as read.`)
+  } else {
+    toast('Failed to mark all read.', 'error')
+  }
+}
+window.markAllRead = markAllRead
+
 async function deleteMsg(id) {
   if (!confirm('Are you sure you want to delete this message?')) return
-  await fetch(`/api/admin/messages/${id}`, { method: 'DELETE' })
-  document.getElementById('msg-' + id)?.remove()
-  toast('Message deleted.')
-  loadDashboard()
+  try {
+    const res = await fetch(`/api/admin/messages/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      document.getElementById('msg-' + id)?.remove()
+      toast('Message deleted.')
+      loadDashboard()
+    } else {
+      const d = await res.json()
+      toast(d.error || 'Failed to delete message.', 'error')
+    }
+  } catch {
+    toast('Server error.', 'error')
+  }
 }
 window.deleteMsg = deleteMsg
 
@@ -345,7 +393,8 @@ function renderI18nView() {
   filtered.forEach(r => { if (!byPage[r.page]) byPage[r.page] = []; byPage[r.page].push(r) })
 
   const pages = Object.keys(byPage).sort()
-  pages.push('media_library')
+  // Only show media_library tab when there's no filter active
+  if (!filter) pages.push('media_library')
 
   if (pages.length === 0) {
     sidebar.innerHTML = '<div class="text-center text-muted p-4">No matches found</div>'
@@ -355,14 +404,16 @@ function renderI18nView() {
 
   if (!pages.includes(i18nActivePage)) i18nActivePage = pages[0]
 
-  sidebar.innerHTML = pages.map(p => `
-    <a class="nav-link ${p === i18nActivePage ? 'active' : ''}" href="#" onclick="setI18nPage('${p}')" style="border-radius:0;">
-      ${p === 'media_library' ? '<i class="fas fa-images mr-1"></i> Media Library' : p} 
-      <span class="badge ${p === i18nActivePage ? 'bg-white text-dark' : 'bg-secondary'} float-right" id="badge-${p}">
+  sidebar.innerHTML = pages.map(p => {
+    const safeP = p.replace(/'/g, "\\'").replace(/"/g, '&quot;')
+    return `
+    <a class="nav-link ${p === i18nActivePage ? 'active' : ''}" href="#" onclick="setI18nPage('${safeP}'); return false;" style="border-radius:0;">
+      ${p === 'media_library' ? '<i class="fas fa-images mr-1"></i> Media Library' : esc(p)} 
+      <span class="badge ${p === i18nActivePage ? 'bg-white text-dark' : 'bg-secondary'} float-right" id="badge-${esc(p)}">
         ${p === 'media_library' ? '' : (byPage[p]?.length || 0)}
       </span>
-    </a>
-  `).join('')
+    </a>`
+  }).join('')
 
   if (i18nActivePage === 'media_library') {
     content.innerHTML = `<h4 class="mb-4 text-capitalize border-bottom pb-2">Media Library</h4>
@@ -467,7 +518,7 @@ async function uploadImage(input, targetFilename) {
       renderI18nView() // refresh preview
     } else {
       const d = await res.json()
-      toast(d.error || 'Replace imageilemedi.', 'error')
+      toast(d.error || 'Failed to replace image.', 'error')
       input.nextElementSibling.textContent = 'Replace image'
     }
   } catch {
@@ -594,6 +645,7 @@ function closeModal(id, boxId, onClose) {
 function openAddUserModal() {
   document.getElementById('modal-user-name').value = ''
   document.getElementById('modal-user-pass').value = ''
+  document.getElementById('modal-user-pass-confirm').value = ''
   document.getElementById('modal-error').classList.add('d-none')
   openModal('modal-add-user', 'modal-box')
   setTimeout(() => document.getElementById('modal-user-name').focus(), 250)
@@ -624,6 +676,7 @@ window.togglePassVis2 = togglePassVis2
 async function createUserModal() {
   const u = document.getElementById('modal-user-name').value.trim()
   const p = document.getElementById('modal-user-pass').value
+  const p2 = document.getElementById('modal-user-pass-confirm').value
   const errEl = document.getElementById('modal-error')
   const btn = document.getElementById('modal-create-btn')
 
@@ -631,6 +684,7 @@ async function createUserModal() {
 
   if (!u) { errEl.textContent = 'Username is required.'; errEl.classList.remove('d-none'); return }
   if (p.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.remove('d-none'); return }
+  if (p !== p2) { errEl.textContent = 'Passwords do not match.'; errEl.classList.remove('d-none'); return }
 
   btn.disabled = true
   btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Creating...'
@@ -755,30 +809,82 @@ window.deleteUser = deleteUser
 
 const PROJECT_DATA = {
   'custom-homes': [
-    { title: 'The Bird Street',   img: '58005.png' },
-    { title: 'The Bird Street 2', img: '21534.png' },
-    { title: 'The Bird Street 3', img: 'ac45f.png' },
-    { title: 'Beverly Hills',     img: 'f9929.png' },
-    { title: 'Pacific Palisades', img: 'a4e8c.png' },
-    { title: 'Santa Monica',      img: 'd07f0.png' },
-    { title: 'Pasadena',          img: 'ef86b.png' },
+    { title: 'The Bird Street (landing)',   img: 'ch-birdst1-land.jpg' },
+    { title: 'The Bird Street (2)',         img: 'ch-birdst1-2.jpg' },
+    { title: 'The Bird Street (3)',         img: 'ch-birdst1-3.jpg' },
+    { title: 'The Bird Street (4)',         img: 'ch-birdst1-4.jpg' },
+    { title: 'The Bird Street (5)',         img: 'ch-birdst1-5.jpg' },
+    { title: 'The Bird Street (6)',         img: 'ch-birdst1-6.jpg' },
+    { title: 'The Bird Street 2 (landing)', img: 'ch-birdst2-land.jpg' },
+    { title: 'The Bird Street 2 (2)',       img: 'ch-birdst2-2.jpg' },
+    { title: 'The Bird Street 2 (3)',       img: 'ch-birdst2-3.jpg' },
+    { title: 'The Bird Street 2 (4)',       img: 'ch-birdst2-4.jpg' },
+    { title: 'The Bird Street 3 (landing)', img: 'ch-birdst3-land.jpg' },
+    { title: 'The Bird Street 3 (2)',       img: 'ch-birdst3-2.jpg' },
+    { title: 'Beverly Hills (landing)',     img: 'ch-bevhills-land.jpg' },
+    { title: 'Beverly Hills (2)',           img: 'ch-bevhills-2.jpg' },
+    { title: 'Beverly Hills (3)',           img: 'ch-bevhills-3.jpg' },
+    { title: 'Beverly Hills (4)',           img: 'ch-bevhills-4.jpg' },
+    { title: 'Beverly Hills (5)',           img: 'ch-bevhills-5.avif' },
+    { title: 'Beverly Hills (6)',           img: 'ch-bevhills-6.avif' },
+    { title: 'Beverly Hills (7)',           img: 'ch-bevhills-7.jpg' },
+    { title: 'Pacific Palisades (landing)', img: 'ch-pacpal-land.jpg' },
+    { title: 'Pacific Palisades (2)',       img: 'ch-pacpal-2.jpg' },
+    { title: 'Pacific Palisades (3)',       img: 'ch-pacpal-3.jpg' },
+    { title: 'Pacific Palisades (4)',       img: 'ch-pacpal-4.jpg' },
+    { title: 'Santa Monica (landing)',      img: 'ch-santamon-land.jpg' },
+    { title: 'Santa Monica (2)',            img: 'ch-santamon-2.jpg' },
+    { title: 'Santa Monica (3)',            img: 'ch-santamon-3.jpg' },
+    { title: 'Pasadena (landing)',          img: 'ch-pasadena-land.jpg' },
+    { title: 'Pasadena (2)',                img: 'ch-pasadena-2.jpg' },
+    { title: 'Pasadena (3)',                img: 'ch-pasadena-3.jpg' },
   ],
   'hospitality': [
     { title: 'Bottega Louie WeHo',       img: 'hosp-bottega-louie.jpg' },
-    { title: '1 Hotel WeHo',             img: 'hosp-1hotel-weho.png' },
+    { title: '1 Hotel WeHo',             img: 'hosp-1hotel-weho.jpg' },
     { title: 'Edition WeHo',             img: 'hosp-edition-weho.jpg' },
     { title: 'Pendry WeHo',              img: 'hosp-pendry-weho.jpg' },
     { title: 'Regent Hotel Santa Monica',img: 'hosp-regent-sm.jpg' },
   ],
+  'bending-stone': [
+    { title: 'Hero image',    img: '9a808.jpg' },
+    { title: 'Gallery 1',     img: '0fcbd.jpg' },
+    { title: 'Gallery 2',     img: '1c524.jpg' },
+    { title: 'Gallery 3',     img: '38222.jpg' },
+    { title: 'Gallery 4',     img: '283b9.jpg' },
+    { title: 'Gallery 5',     img: '27cbb.jpg' },
+    { title: 'Gallery 6',     img: 'bb50f.jpg' },
+    { title: 'Gallery 7',     img: 'c0f77.jpg' },
+    { title: 'Gallery 8',     img: '660f7.jpg' },
+  ],
+  'furniture': [
+    { title: 'Hero image',    img: 'eb5e1.jpg' },
+    { title: 'Gallery 1',     img: '6326b.jpg' },
+    { title: 'Gallery 2',     img: '63f0b.jpg' },
+    { title: 'Gallery 3',     img: '82214.jpg' },
+    { title: 'Gallery 4',     img: 'daf6b.jpg' },
+    { title: 'Gallery 5',     img: 'e29e7.jpg' },
+    { title: 'Gallery 6',     img: 'ebe26.jpg' },
+    { title: 'Gallery 7',     img: 'fc0b9.jpg' },
+  ],
+  'stone-blocks': [
+    { title: 'Hero image',    img: '08321.jpg' },
+    { title: 'Gallery 1',     img: '33301.jpg' },
+    { title: 'Gallery 2',     img: '32fa4.jpg' },
+  ],
   'commercial': [
-    { title: 'Santa Monica',          img: '6f440.png' },
-    { title: 'Kurve on Wilshire',     img: '5b9aa.png' },
-    { title: 'Skyview Sunset Blvd',   img: '8ab23.png' },
-    { title: 'DTLA',                  img: 'comm-dtla-888.jpg' },
-    { title: 'Circa DTLA',            img: '21ba2.png' },
-    { title: 'AKA on Sunset Blvd',    img: 'f24af.png' },
-    { title: 'Oceanwide Plaza',       img: 'e05b0.png' },
-    { title: 'The Harland WeHo',      img: 'b22ac.png' },
+    { title: 'Santa Monica',          img: '6f440.jpg' },
+    { title: 'Kurve on Wilshire',     img: '5b9aa.jpg' },
+    { title: 'Skyview Sunset Blvd',   img: '8ab23.jpg' },
+    { title: 'DTLA (landing)',         img: 'comm-dtla-gh.jpg' },
+    { title: 'DTLA (extra 1)',         img: 'comm-dtla-888.jpg' },
+    { title: 'DTLA (extra 2)',         img: 'comm-dtla-ext.jpg' },
+    { title: 'Circa DTLA',            img: '21ba2.jpg' },
+    { title: 'AKA on Sunset Blvd',    img: 'f24af.jpg' },
+    { title: 'Oceanwide Plaza (landing)', img: 'comm-oceanwide-pic3.jpg' },
+    { title: 'Oceanwide Plaza (extra 1)', img: 'e05b0.jpg' },
+    { title: 'Oceanwide Plaza (extra 2)', img: 'comm-oceanwide-graffiti.jpg' },
+    { title: 'The Harland WeHo',      img: 'b22ac.jpg' },
   ],
 }
 
@@ -805,7 +911,7 @@ function loadProjectImages() {
         <div class="card-body p-2 d-flex align-items-center justify-content-between">
           <span class="text-muted" style="font-size:.75rem;word-break:break-all;">${esc(p.img)}</span>
           <label class="btn btn-sm btn-primary mb-0 ml-2" style="cursor:pointer;white-space:nowrap;font-size:.78rem;">
-            Replace
+            <span class="btn-label-text">Replace</span>
             <input type="file" accept="image/*" style="display:none;" onchange="replaceProjectImage(this,'${esc(p.img)}')">
           </label>
         </div>
@@ -818,8 +924,8 @@ window.loadProjectImages = loadProjectImages
 async function replaceProjectImage(input, filename) {
   if (!input.files[0]) return
   const label = input.parentElement
-  const origText = label.childNodes[0].nodeValue
-  label.childNodes[0].nodeValue = 'Uploading…'
+  const textSpan = label.querySelector('span.btn-label-text')
+  if (textSpan) textSpan.textContent = 'Uploading…'
   label.classList.add('disabled')
 
   const fd = new FormData()
@@ -832,7 +938,6 @@ async function replaceProjectImage(input, filename) {
     })
     const data = await res.json()
     if (res.ok) {
-      // Bust cache on the thumbnail
       const thumb = document.getElementById('proj-thumb-' + filename)
       if (thumb) thumb.src = `/figma_images/${filename}?t=${Date.now()}`
       toast(`Image replaced: ${filename}`)
@@ -843,7 +948,7 @@ async function replaceProjectImage(input, filename) {
     toast('Server error.', 'error')
   }
 
-  label.childNodes[0].nodeValue = origText
+  if (textSpan) textSpan.textContent = 'Replace'
   label.classList.remove('disabled')
   input.value = ''
 }
@@ -864,6 +969,7 @@ const SEO_PAGES = {
 
 let _seoData = {}
 let _seoCurrentPage = 'index'
+let _seoUnsaved = false
 
 async function loadSeo() {
   try {
@@ -877,6 +983,8 @@ async function loadSeo() {
 window.loadSeo = loadSeo
 
 function setSeoPage(page, el) {
+  if (_seoUnsaved && !confirm('You have unsaved SEO changes. Discard them?')) return false
+  _seoUnsaved = false
   _seoCurrentPage = page
   document.querySelectorAll('#seo-page-nav .nav-link').forEach(a => a.classList.remove('active'))
   if (el) el.classList.add('active')
@@ -947,6 +1055,25 @@ function renderSeoForm() {
       </div>
     </div>
 
+    <!-- Twitter Card -->
+    <div class="card mb-3 shadow-sm">
+      <div class="card-header bg-light py-2"><span class="key-code"><i class="fab fa-twitter text-muted mr-1"></i> Twitter Card</span></div>
+      <div class="card-body p-3">
+        <div class="form-group">
+          <label class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Twitter Title</label>
+          <input type="text" id="seo-tw-title" class="form-control" value="${esc(d.tw_title || '')}" placeholder="Same as OG Title or custom">
+        </div>
+        <div class="form-group">
+          <label class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Twitter Description</label>
+          <textarea id="seo-tw-desc" class="form-control" rows="2" placeholder="Same as OG Description or custom">${esc(d.tw_description || '')}</textarea>
+        </div>
+        <div class="form-group mb-0">
+          <label class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;">Twitter Image URL</label>
+          <input type="text" id="seo-tw-image" class="form-control" value="${esc(d.tw_image || '')}" placeholder="https://yoursite.com/twitter-card.jpg">
+        </div>
+      </div>
+    </div>
+
     <!-- SERP Preview -->
     <div class="card mb-3 border-0" style="background:#f8f9fa;border-radius:8px;">
       <div class="card-body p-3">
@@ -960,14 +1087,21 @@ function renderSeoForm() {
     </div>
   `
 
-  // Live preview on input
+  // Live preview + unsaved tracking
+  const markUnsaved = () => { _seoUnsaved = true }
   document.getElementById('seo-title').addEventListener('input', e => {
     document.getElementById('serp-title').textContent = e.target.value || (info.label || page)
     document.getElementById('seo-title-count').textContent = e.target.value.length
+    markUnsaved()
   })
   document.getElementById('seo-desc').addEventListener('input', e => {
     document.getElementById('serp-desc').textContent = e.target.value || 'No description set.'
     document.getElementById('seo-desc-count').textContent = e.target.value.length
+    markUnsaved()
+  })
+  ;['seo-og-title','seo-og-desc','seo-og-image','seo-robots','seo-canonical','seo-tw-title','seo-tw-desc','seo-tw-image'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', markUnsaved)
+    document.getElementById(id)?.addEventListener('change', markUnsaved)
   })
 }
 
@@ -982,6 +1116,9 @@ async function saveSeo() {
     og_image:       document.getElementById('seo-og-image')?.value || '',
     robots:         document.getElementById('seo-robots')?.value || 'index, follow',
     canonical:      document.getElementById('seo-canonical')?.value || '',
+    tw_title:       document.getElementById('seo-tw-title')?.value || '',
+    tw_description: document.getElementById('seo-tw-desc')?.value || '',
+    tw_image:       document.getElementById('seo-tw-image')?.value || '',
   }
 
   try {
@@ -992,7 +1129,8 @@ async function saveSeo() {
     })
     if (res.ok) {
       _seoData[page] = payload
-      toast('SEO saved for ' + (SEO_PAGES[page]?.label || page) + '.')
+      _seoUnsaved = false
+      toast('Saved SEO for ' + (SEO_PAGES[page]?.label || page) + '.')
     } else {
       const d = await res.json()
       toast(d.error || 'Failed to save SEO.', 'error')
@@ -1002,6 +1140,65 @@ async function saveSeo() {
   }
 }
 window.saveSeo = saveSeo
+
+// Settings
+async function loadSettings() {
+  const el = document.getElementById('settings-content')
+  if (!el) return
+  el.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>'
+  try {
+    const sys = await fetch('/api/admin/system').then(r => r.json())
+    const uptime = (() => {
+      const s = Math.floor(sys.uptime)
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60
+      return `${h}h ${m}m ${sec}s`
+    })()
+    const dbMB = (sys.dbSizeBytes / 1048576).toFixed(2)
+
+    el.innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light py-2"><span class="key-code"><i class="fas fa-server text-muted mr-1"></i> System Info</span></div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <tbody>
+                  <tr><td class="text-muted pl-3">Node.js</td><td><strong>${esc(sys.nodeVersion)}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">Platform</td><td><strong>${esc(sys.platform)}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">Uptime</td><td><strong>${uptime}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">DB Size</td><td><strong>${dbMB} MB</strong></td></tr>
+                  <tr><td class="text-muted pl-3">Messages</td><td><strong>${sys.messages}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">Admin Users</td><td><strong>${sys.users}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">i18n Keys</td><td><strong>${sys.i18nKeys}</strong></td></tr>
+                  <tr><td class="text-muted pl-3">Images</td><td><strong>${sys.images}</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light py-2"><span class="key-code"><i class="fas fa-shield-alt text-muted mr-1"></i> Security</span></div>
+            <div class="card-body">
+              <p class="text-muted mb-2" style="font-size:.875rem;">All passwords are hashed with <strong>bcrypt (cost 10)</strong>. Never stored in plain text.</p>
+              <p class="text-muted mb-0" style="font-size:.875rem;">Sessions are server-side and expire on logout. Set <code>ADMIN_PASS</code> env var on first deploy to change the default password.</p>
+            </div>
+          </div>
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light py-2"><span class="key-code"><i class="fas fa-download text-muted mr-1"></i> Export</span></div>
+            <div class="card-body">
+              <p class="text-muted mb-3" style="font-size:.875rem;">Download all contact form messages as a CSV file.</p>
+              <a href="/api/admin/export/messages" class="btn btn-sm btn-outline-dark"><i class="fas fa-file-csv mr-1"></i> Export Messages CSV</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  } catch {
+    el.innerHTML = '<div class="alert alert-danger">Failed to load system info.</div>'
+  }
+}
+window.loadSettings = loadSettings
 
 async function loadPages() {
   const list = document.getElementById('pages-list')
