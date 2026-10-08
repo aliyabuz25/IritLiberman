@@ -1,0 +1,51 @@
+version: "3.8"
+
+networks:
+  octobot-net:
+    external: true
+    name: octobot-net
+  edge:
+    external: true
+    name: edge
+
+volumes:
+  irit-db:
+  irit-uploads:
+
+services:
+  irit-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: irit-liberman:latest
+    pull_policy: build
+    container_name: irit-liberman
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    volumes:
+      - irit-db:/app/data
+      - irit-uploads:/app/public/figma_images
+    networks:
+      - octobot-net
+      - edge
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=edge
+      - traefik.http.services.irit-liberman.loadbalancer.server.port=3000
+
+      # HTTP → HTTPS redirect
+      - traefik.http.middlewares.irit-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.irit-https.redirectscheme.permanent=true
+      - traefik.http.routers.irit-http.rule=Host(`irit.octotech.az`)
+      - traefik.http.routers.irit-http.entrypoints=web
+      - traefik.http.routers.irit-http.middlewares=irit-https
+      - traefik.http.routers.irit-http.service=noop@internal
+
+      # HTTPS
+      - traefik.http.routers.irit-https.rule=Host(`irit.octotech.az`)
+      - traefik.http.routers.irit-https.entrypoints=websecure
+      - traefik.http.routers.irit-https.tls=true
+      - traefik.http.routers.irit-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.irit-https.service=irit-liberman
