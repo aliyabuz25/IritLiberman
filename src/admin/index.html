@@ -305,22 +305,20 @@
         <!-- Project Images -->
         <div id="sec-projects" class="d-none">
           <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h3 class="card-title">Project Images</h3>
-              <div class="card-tools d-flex" style="gap:6px;">
-                <select id="proj-category-filter" class="form-control form-control-sm" style="width:220px;" onchange="loadProjectImages()">
-                  <option value="custom-homes">Custom Homes</option>
-                  <option value="hospitality">Hospitality</option>
-                  <option value="commercial">Commercial</option>
-                  <option value="bending-stone">1MM Bending Stone</option>
-                  <option value="furniture">Stone Furniture</option>
-                  <option value="stone-blocks">Stone Blocks</option>
-                </select>
-              </div>
+            <div class="card-header d-flex align-items-center" style="gap:10px;">
+              <h3 class="card-title mb-0">Project Images</h3>
+              <select id="proj-category-filter" class="form-control form-control-sm ml-2" style="width:200px;" onchange="loadProjectImages()">
+                <option value="custom-homes">Custom Homes</option>
+                <option value="hospitality">Hospitality</option>
+                <option value="commercial">Commercial</option>
+                <option value="bending-stone">1MM Bending Stone</option>
+                <option value="stone-furniture">Stone Furniture</option>
+                <option value="stone-blocks">Stone Blocks</option>
+              </select>
+              <span class="text-muted ml-auto" style="font-size:.8rem;">Click ★ to set landing · <i class="fas fa-trash"></i> to remove · + to add images</span>
             </div>
             <div class="card-body">
-              <p class="text-muted" style="font-size:.85rem;">Click <strong>Replace</strong> on any card to upload a new image. The filename stays the same — no code changes needed.</p>
-              <div id="proj-grid" class="row mt-3" style="gap:0;"></div>
+              <div id="proj-grid" class="row mt-1"></div>
             </div>
           </div>
         </div>

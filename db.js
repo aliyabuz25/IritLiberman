@@ -44,6 +44,22 @@ db.exec(`
     UNIQUE(page, key, lang)
   );
 
+  CREATE TABLE IF NOT EXISTS projects (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT NOT NULL,
+    name     TEXT NOT NULL,
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS project_images (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    filename   TEXT NOT NULL,
+    is_landing INTEGER DEFAULT 0,
+    sort_order INTEGER DEFAULT 0
+  );
+
   CREATE TABLE IF NOT EXISTS seo (
     page           TEXT PRIMARY KEY,
     title          TEXT DEFAULT '',
@@ -63,6 +79,84 @@ db.exec(`
 ;['tw_title','tw_description','tw_image'].forEach(col => {
   try { db.exec(`ALTER TABLE seo ADD COLUMN ${col} TEXT DEFAULT ''`) } catch {}
 })
+
+// Migration — seed projects table if empty
+const projCount = db.prepare('SELECT COUNT(*) as c FROM projects').get()
+if (projCount.c === 0) {
+  const insProj = db.prepare('INSERT INTO projects (category, name, sort_order) VALUES (?,?,?)')
+  const insImg  = db.prepare('INSERT INTO project_images (project_id, filename, is_landing, sort_order) VALUES (?,?,?,?)')
+
+  const seed = [
+    { cat: 'custom-homes', name: 'The Bird Street', images: [
+      { f: 'ch-birdst1-land.jpg', land: 1 }, { f: 'ch-birdst1-2.jpg' }, { f: 'ch-birdst1-3.jpg' },
+      { f: 'ch-birdst1-4.jpg' }, { f: 'ch-birdst1-5.jpg' }, { f: 'ch-birdst1-6.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'The Bird Street 2', images: [
+      { f: 'ch-birdst2-land.jpg', land: 1 }, { f: 'ch-birdst2-2.jpg' }, { f: 'ch-birdst2-3.jpg' }, { f: 'ch-birdst2-4.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'The Bird Street 3', images: [
+      { f: 'ch-birdst3-land.jpg', land: 1 }, { f: 'ch-birdst3-2.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'Beverly Hills', images: [
+      { f: 'ch-bevhills-land.jpg', land: 1 }, { f: 'ch-bevhills-2.jpg' }, { f: 'ch-bevhills-3.jpg' },
+      { f: 'ch-bevhills-4.jpg' }, { f: 'ch-bevhills-5.avif' }, { f: 'ch-bevhills-6.avif' }, { f: 'ch-bevhills-7.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'Pacific Palisades', images: [
+      { f: 'ch-pacpal-land.jpg', land: 1 }, { f: 'ch-pacpal-2.jpg' }, { f: 'ch-pacpal-3.jpg' }, { f: 'ch-pacpal-4.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'Santa Monica', images: [
+      { f: 'ch-santamon-land.jpg', land: 1 }, { f: 'ch-santamon-2.jpg' }, { f: 'ch-santamon-3.jpg' }
+    ]},
+    { cat: 'custom-homes', name: 'Pasadena', images: [
+      { f: 'ch-pasadena-land.jpg', land: 1 }, { f: 'ch-pasadena-2.jpg' }, { f: 'ch-pasadena-3.jpg' }
+    ]},
+    { cat: 'hospitality', name: 'Bottega Louie WeHo', images: [
+      { f: 'hosp-bottega-louie.jpg', land: 1 }, { f: 'hosp-bottega-bar.jpg' }, { f: 'hosp-bottega-front.jpg' }
+    ]},
+    { cat: 'hospitality', name: '1 Hotel WeHo', images: [
+      { f: 'hosp-1hotel-weho.jpg', land: 1 }, { f: 'hosp-1hotel-2.jpg' }, { f: 'hosp-1hotel-3.jpg' }, { f: 'hosp-1hotel-4.jpg' }
+    ]},
+    { cat: 'hospitality', name: 'Edition WeHo', images: [
+      { f: 'hosp-edition-weho.jpg', land: 1 }, { f: 'hosp-edition-2.jpg' }, { f: 'hosp-edition-3.jpg' }, { f: 'hosp-edition-4.jpg' }
+    ]},
+    { cat: 'hospitality', name: 'Pendry WeHo', images: [
+      { f: 'hosp-pendry-weho.jpg', land: 1 }, { f: 'hosp-pendry-2.jpg' }, { f: 'hosp-pendry-3.jpg' }, { f: 'hosp-pendry-4.jpg' }
+    ]},
+    { cat: 'hospitality', name: 'Regent Hotel Santa Monica', images: [
+      { f: 'hosp-regent-sm.jpg', land: 1 }, { f: 'hosp-regent-2.jpg' }, { f: 'hosp-regent-3.jpg' }, { f: 'hosp-regent-4.jpg' }
+    ]},
+    { cat: 'commercial', name: 'Santa Monica', images: [{ f: '6f440.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'Kurve on Wilshire', images: [{ f: '5b9aa.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'Skyview Sunset Boulevard', images: [{ f: '8ab23.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'DTLA', images: [
+      { f: 'comm-dtla-gh.jpg', land: 1 }, { f: 'comm-dtla-888.jpg' }, { f: 'comm-dtla-ext.jpg' }
+    ]},
+    { cat: 'commercial', name: 'Circa DTLA', images: [{ f: '21ba2.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'AKA on Sunset Blvd', images: [{ f: 'f24af.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'Oceanwide Plaza', images: [
+      { f: 'comm-oceanwide-pic3.jpg', land: 1 }, { f: 'e05b0.jpg' }, { f: 'comm-oceanwide-graffiti.jpg' }
+    ]},
+    { cat: 'commercial', name: 'The Harland WeHo', images: [{ f: 'b22ac.jpg', land: 1 }]},
+    { cat: 'bending-stone', name: '1MM Bending Stone', images: [
+      { f: '9a808.jpg', land: 1 }, { f: '0fcbd.jpg' }, { f: '1c524.jpg' }, { f: '38222.jpg' },
+      { f: '283b9.jpg' }, { f: '27cbb.jpg' }, { f: 'bb50f.jpg' }, { f: 'c0f77.jpg' }, { f: '660f7.jpg' }
+    ]},
+    { cat: 'stone-furniture', name: 'Stone Furniture', images: [
+      { f: 'eb5e1.jpg', land: 1 }, { f: '6326b.jpg' }, { f: '63f0b.jpg' }, { f: '82214.jpg' },
+      { f: 'daf6b.jpg' }, { f: 'e29e7.jpg' }, { f: 'ebe26.jpg' }, { f: 'fc0b9.jpg' }
+    ]},
+    { cat: 'stone-blocks', name: 'Stone Blocks', images: [
+      { f: '08321.jpg', land: 1 }, { f: '33301.jpg' }, { f: '32fa4.jpg' }
+    ]},
+  ]
+
+  seed.forEach((proj, pi) => {
+    const { lastInsertRowid: pid } = insProj.run(proj.cat, proj.name, pi)
+    proj.images.forEach((img, ii) => {
+      insImg.run(pid, img.f, img.land ? 1 : 0, ii)
+    })
+  })
+}
 
 // Migration — ensure project title i18n keys exist in older DBs
 ;[
@@ -371,6 +465,21 @@ export const queries = {
       og_image=excluded.og_image, robots=excluded.robots, canonical=excluded.canonical,
       tw_title=excluded.tw_title, tw_description=excluded.tw_description, tw_image=excluded.tw_image
   `),
+
+  // Projects
+  getProjectsByCategory: db.prepare('SELECT * FROM projects WHERE category=? ORDER BY sort_order,id'),
+  getAllProjects: db.prepare('SELECT * FROM projects ORDER BY category, sort_order, id'),
+  getProjectImages: db.prepare('SELECT * FROM project_images WHERE project_id=? ORDER BY sort_order,id'),
+  insertProject: db.prepare('INSERT INTO projects (category,name,sort_order) VALUES (?,?,?)'),
+  updateProjectName: db.prepare('UPDATE projects SET name=? WHERE id=?'),
+  deleteProject: db.prepare('DELETE FROM projects WHERE id=?'),
+  insertProjectImage: db.prepare('INSERT INTO project_images (project_id,filename,is_landing,sort_order) VALUES (?,?,?,?)'),
+  setLanding: db.prepare('UPDATE project_images SET is_landing=CASE WHEN id=? THEN 1 ELSE 0 END WHERE project_id=?'),
+  deleteProjectImage: db.prepare('DELETE FROM project_images WHERE id=?'),
+  getProjectImageById: db.prepare('SELECT * FROM project_images WHERE id=?'),
+  getProjectById: db.prepare('SELECT * FROM projects WHERE id=?'),
+  updateProjectSort: db.prepare('UPDATE projects SET sort_order=? WHERE id=?'),
+  updateImageSort: db.prepare('UPDATE project_images SET sort_order=? WHERE id=?'),
 
   // I18N
   getI18nByLang: db.prepare('SELECT * FROM i18n WHERE lang=? ORDER BY page,key'),

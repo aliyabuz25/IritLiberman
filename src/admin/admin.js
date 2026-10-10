@@ -806,154 +806,175 @@ async function deleteUser(id, username) {
 }
 window.deleteUser = deleteUser
 
-// Project Images
+// ─────────────────────────────────────────────────────────────────
+// Project Images — DB-driven grouped management
+// ─────────────────────────────────────────────────────────────────
 
-const PROJECT_DATA = {
-  'custom-homes': [
-    { title: 'The Bird Street (landing)',   img: 'ch-birdst1-land.jpg' },
-    { title: 'The Bird Street (2)',         img: 'ch-birdst1-2.jpg' },
-    { title: 'The Bird Street (3)',         img: 'ch-birdst1-3.jpg' },
-    { title: 'The Bird Street (4)',         img: 'ch-birdst1-4.jpg' },
-    { title: 'The Bird Street (5)',         img: 'ch-birdst1-5.jpg' },
-    { title: 'The Bird Street (6)',         img: 'ch-birdst1-6.jpg' },
-    { title: 'The Bird Street 2 (landing)', img: 'ch-birdst2-land.jpg' },
-    { title: 'The Bird Street 2 (2)',       img: 'ch-birdst2-2.jpg' },
-    { title: 'The Bird Street 2 (3)',       img: 'ch-birdst2-3.jpg' },
-    { title: 'The Bird Street 2 (4)',       img: 'ch-birdst2-4.jpg' },
-    { title: 'The Bird Street 3 (landing)', img: 'ch-birdst3-land.jpg' },
-    { title: 'The Bird Street 3 (2)',       img: 'ch-birdst3-2.jpg' },
-    { title: 'Beverly Hills (landing)',     img: 'ch-bevhills-land.jpg' },
-    { title: 'Beverly Hills (2)',           img: 'ch-bevhills-2.jpg' },
-    { title: 'Beverly Hills (3)',           img: 'ch-bevhills-3.jpg' },
-    { title: 'Beverly Hills (4)',           img: 'ch-bevhills-4.jpg' },
-    { title: 'Beverly Hills (5)',           img: 'ch-bevhills-5.avif' },
-    { title: 'Beverly Hills (6)',           img: 'ch-bevhills-6.avif' },
-    { title: 'Beverly Hills (7)',           img: 'ch-bevhills-7.jpg' },
-    { title: 'Pacific Palisades (landing)', img: 'ch-pacpal-land.jpg' },
-    { title: 'Pacific Palisades (2)',       img: 'ch-pacpal-2.jpg' },
-    { title: 'Pacific Palisades (3)',       img: 'ch-pacpal-3.jpg' },
-    { title: 'Pacific Palisades (4)',       img: 'ch-pacpal-4.jpg' },
-    { title: 'Santa Monica (landing)',      img: 'ch-santamon-land.jpg' },
-    { title: 'Santa Monica (2)',            img: 'ch-santamon-2.jpg' },
-    { title: 'Santa Monica (3)',            img: 'ch-santamon-3.jpg' },
-    { title: 'Pasadena (landing)',          img: 'ch-pasadena-land.jpg' },
-    { title: 'Pasadena (2)',                img: 'ch-pasadena-2.jpg' },
-    { title: 'Pasadena (3)',                img: 'ch-pasadena-3.jpg' },
-  ],
-  'hospitality': [
-    { title: 'Bottega Louie WeHo',       img: 'hosp-bottega-louie.jpg' },
-    { title: '1 Hotel WeHo',             img: 'hosp-1hotel-weho.jpg' },
-    { title: 'Edition WeHo',             img: 'hosp-edition-weho.jpg' },
-    { title: 'Pendry WeHo',              img: 'hosp-pendry-weho.jpg' },
-    { title: 'Regent Hotel Santa Monica',img: 'hosp-regent-sm.jpg' },
-  ],
-  'bending-stone': [
-    { title: 'Hero image',    img: '9a808.jpg' },
-    { title: 'Gallery 1',     img: '0fcbd.jpg' },
-    { title: 'Gallery 2',     img: '1c524.jpg' },
-    { title: 'Gallery 3',     img: '38222.jpg' },
-    { title: 'Gallery 4',     img: '283b9.jpg' },
-    { title: 'Gallery 5',     img: '27cbb.jpg' },
-    { title: 'Gallery 6',     img: 'bb50f.jpg' },
-    { title: 'Gallery 7',     img: 'c0f77.jpg' },
-    { title: 'Gallery 8',     img: '660f7.jpg' },
-  ],
-  'furniture': [
-    { title: 'Hero image',    img: 'eb5e1.jpg' },
-    { title: 'Gallery 1',     img: '6326b.jpg' },
-    { title: 'Gallery 2',     img: '63f0b.jpg' },
-    { title: 'Gallery 3',     img: '82214.jpg' },
-    { title: 'Gallery 4',     img: 'daf6b.jpg' },
-    { title: 'Gallery 5',     img: 'e29e7.jpg' },
-    { title: 'Gallery 6',     img: 'ebe26.jpg' },
-    { title: 'Gallery 7',     img: 'fc0b9.jpg' },
-  ],
-  'stone-blocks': [
-    { title: 'Hero image',    img: '08321.jpg' },
-    { title: 'Gallery 1',     img: '33301.jpg' },
-    { title: 'Gallery 2',     img: '32fa4.jpg' },
-  ],
-  'commercial': [
-    { title: 'Santa Monica',          img: '6f440.jpg' },
-    { title: 'Kurve on Wilshire',     img: '5b9aa.jpg' },
-    { title: 'Skyview Sunset Blvd',   img: '8ab23.jpg' },
-    { title: 'DTLA (landing)',         img: 'comm-dtla-gh.jpg' },
-    { title: 'DTLA (extra 1)',         img: 'comm-dtla-888.jpg' },
-    { title: 'DTLA (extra 2)',         img: 'comm-dtla-ext.jpg' },
-    { title: 'Circa DTLA',            img: '21ba2.jpg' },
-    { title: 'AKA on Sunset Blvd',    img: 'f24af.jpg' },
-    { title: 'Oceanwide Plaza (landing)', img: 'comm-oceanwide-pic3.jpg' },
-    { title: 'Oceanwide Plaza (extra 1)', img: 'e05b0.jpg' },
-    { title: 'Oceanwide Plaza (extra 2)', img: 'comm-oceanwide-graffiti.jpg' },
-    { title: 'The Harland WeHo',      img: 'b22ac.jpg' },
-  ],
+const PROJ_CATEGORIES = {
+  'custom-homes':   'Custom Homes',
+  'hospitality':    'Hospitality',
+  'commercial':     'Commercial',
+  'bending-stone':  '1MM Bending Stone',
+  'stone-furniture':'Stone Furniture',
+  'stone-blocks':   'Stone Blocks',
 }
 
-function loadProjectImages() {
+async function loadProjectImages() {
   const cat = document.getElementById('proj-category-filter')?.value || 'custom-homes'
   const grid = document.getElementById('proj-grid')
   if (!grid) return
-  const projects = PROJECT_DATA[cat] || []
-
-  grid.innerHTML = projects.map(p => `
-    <div class="col-md-4 col-sm-6 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;">
-          <img
-            src="/figma_images/${esc(p.img)}"
-            alt="${esc(p.title)}"
-            id="proj-thumb-${esc(p.img)}"
-            style="width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s;"
-            onerror="this.style.opacity='.15'"
-          >
-          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45) 0%,transparent 60%);pointer-events:none;"></div>
-          <span style="position:absolute;bottom:10px;left:12px;color:#fff;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.5);">${esc(p.title)}</span>
-        </div>
-        <div class="card-body p-2 d-flex align-items-center justify-content-between">
-          <span class="text-muted" style="font-size:.75rem;word-break:break-all;">${esc(p.img)}</span>
-          <label class="btn btn-sm btn-primary mb-0 ml-2" style="cursor:pointer;white-space:nowrap;font-size:.78rem;">
-            <span class="btn-label-text">Replace</span>
-            <input type="file" accept="image/*" style="display:none;" onchange="replaceProjectImage(this,'${esc(p.img)}')">
-          </label>
-        </div>
-      </div>
-    </div>
-  `).join('')
+  grid.innerHTML = '<div class="col-12 text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>'
+  try {
+    const projects = await fetch(`/api/admin/projects?category=${cat}`).then(r => r.json())
+    renderProjectGroups(projects, grid, cat)
+  } catch {
+    grid.innerHTML = '<div class="col-12 text-danger p-4">Error loading projects.</div>'
+  }
 }
 window.loadProjectImages = loadProjectImages
 
-async function replaceProjectImage(input, filename) {
-  if (!input.files[0]) return
-  const label = input.parentElement
-  const textSpan = label.querySelector('span.btn-label-text')
-  if (textSpan) textSpan.textContent = 'Uploading…'
-  label.classList.add('disabled')
-
-  const fd = new FormData()
-  fd.append('image', input.files[0])
-
-  try {
-    const res = await fetch(`/api/admin/images/${encodeURIComponent(filename)}`, {
-      method: 'PUT',
-      body: fd
-    })
-    const data = await res.json()
-    if (res.ok) {
-      const thumb = document.getElementById('proj-thumb-' + filename)
-      if (thumb) thumb.src = `/figma_images/${filename}?t=${Date.now()}`
-      toast(`Image replaced: ${filename}`)
-    } else {
-      toast(data.error || 'Replace failed.', 'error')
-    }
-  } catch {
-    toast('Server error.', 'error')
+function renderProjectGroups(projects, grid, cat) {
+  if (!projects.length) {
+    grid.innerHTML = `
+      <div class="col-12 text-center text-muted p-4">No projects yet.
+        <button class="btn btn-sm btn-primary ml-2" onclick="createProject('${esc(cat)}')">+ New Project</button>
+      </div>`
+    return
   }
 
-  if (textSpan) textSpan.textContent = 'Replace'
-  label.classList.remove('disabled')
+  grid.innerHTML = `
+    <div class="col-12 mb-3 d-flex justify-content-end">
+      <button class="btn btn-sm btn-primary" onclick="createProject('${esc(cat)}')">+ New Project</button>
+    </div>
+    ${projects.map(proj => `
+      <div class="col-12 mb-4" id="proj-group-${proj.id}">
+        <div class="card" style="border:1px solid #e8e2d9;">
+          <div class="card-header d-flex align-items-center justify-content-between" style="background:#fbf9f4;padding:10px 16px;">
+            <div class="d-flex align-items-center" style="gap:8px;flex:1;">
+              <span id="proj-name-label-${proj.id}" style="font-weight:700;font-size:.9rem;color:#201b17;">${esc(proj.name)}</span>
+              <button onclick="renameProject(${proj.id})" class="btn btn-xs btn-default" style="font-size:.72rem;padding:2px 8px;">Rename</button>
+            </div>
+            <div class="d-flex" style="gap:6px;">
+              <span class="text-muted" style="font-size:.75rem;align-self:center;">${proj.images.length} image${proj.images.length !== 1 ? 's' : ''}</span>
+              <button onclick="deleteProject(${proj.id},'${esc(proj.name)}')" class="btn btn-xs btn-outline-danger" style="font-size:.72rem;padding:2px 8px;">Delete</button>
+            </div>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-2" id="proj-imgs-${proj.id}">
+              ${proj.images.map(img => renderProjectImageCard(proj.id, img)).join('')}
+              <div class="col-md-2 col-sm-4 col-6">
+                <label class="d-flex flex-column align-items-center justify-content-center"
+                  style="aspect-ratio:1;border:2px dashed #d4ccc4;border-radius:8px;cursor:pointer;color:#84796d;font-size:.75rem;background:#fbf9f4;transition:background .15s;">
+                  <i class="fas fa-plus" style="font-size:1.2rem;margin-bottom:4px;"></i>
+                  Add Image
+                  <input type="file" accept="image/*" style="display:none;" onchange="addProjectImage(this,${proj.id})">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  `
+}
+
+function renderProjectImageCard(projId, img) {
+  const isLand = img.is_landing === 1
+  return `
+    <div class="col-md-2 col-sm-4 col-6" id="proj-img-card-${img.id}">
+      <div style="position:relative;aspect-ratio:1;overflow:hidden;border-radius:8px;border:2px solid ${isLand ? '#201b17' : '#e8e2d9'};">
+        <img src="/figma_images/${esc(img.filename)}?t=${Date.now()}"
+          style="width:100%;height:100%;object-fit:cover;"
+          onerror="this.style.opacity='.2'">
+        ${isLand ? '<span style="position:absolute;top:4px;left:4px;background:#201b17;color:#fbf9f4;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.06em;">LAND</span>' : ''}
+        <div style="position:absolute;top:4px;right:4px;display:flex;gap:3px;">
+          ${!isLand ? `<button onclick="setProjectLanding(${projId},${img.id})" class="btn btn-xs" style="background:rgba(32,27,23,.7);color:#fff;padding:2px 5px;font-size:.6rem;border:none;" title="Set as landing">★</button>` : ''}
+          <button onclick="removeProjectImage(${projId},${img.id},'${esc(img.filename)}')" class="btn btn-xs btn-danger" style="padding:2px 5px;font-size:.6rem;" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);padding:3px 6px;">
+          <div style="font-size:.6rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(img.filename)}</div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+async function createProject(cat) {
+  const name = prompt('Project name:')
+  if (!name?.trim()) return
+  const res = await fetch('/api/admin/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ category: cat, name: name.trim() })
+  })
+  if (res.ok) { toast('Project created.'); loadProjectImages() }
+  else { const d = await res.json(); toast(d.error || 'Error', 'error') }
+}
+window.createProject = createProject
+
+async function renameProject(id) {
+  const label = document.getElementById(`proj-name-label-${id}`)
+  const current = label?.textContent || ''
+  const name = prompt('New project name:', current)
+  if (!name?.trim() || name.trim() === current) return
+  const res = await fetch(`/api/admin/projects/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name.trim() })
+  })
+  if (res.ok) { if (label) label.textContent = name.trim(); toast('Renamed.') }
+  else { const d = await res.json(); toast(d.error || 'Error', 'error') }
+}
+window.renameProject = renameProject
+
+async function deleteProject(id, name) {
+  if (!confirm(`Delete project "${name}" and all its images? This cannot be undone.`)) return
+  const res = await fetch(`/api/admin/projects/${id}`, { method: 'DELETE' })
+  if (res.ok) { toast('Project deleted.'); loadProjectImages() }
+  else { const d = await res.json(); toast(d.error || 'Error', 'error') }
+}
+window.deleteProject = deleteProject
+
+async function addProjectImage(input, projId) {
+  if (!input.files[0]) return
+  const label = input.closest('label')
+  if (label) label.style.opacity = '.5'
+  const fd = new FormData()
+  fd.append('image', input.files[0])
+  fd.append('is_landing', '0')
+  try {
+    const res = await fetch(`/api/admin/projects/${projId}/images`, { method: 'POST', body: fd })
+    const data = await res.json()
+    if (res.ok) {
+      toast('Image added.')
+      loadProjectImages()
+    } else {
+      toast(data.error || 'Upload failed.', 'error')
+    }
+  } catch { toast('Server error.', 'error') }
+  if (label) label.style.opacity = '1'
   input.value = ''
 }
-window.replaceProjectImage = replaceProjectImage
+window.addProjectImage = addProjectImage
+
+async function removeProjectImage(projId, imgId, filename) {
+  if (!confirm(`Remove image "${filename}"?`)) return
+  const res = await fetch(`/api/admin/projects/${projId}/images/${imgId}`, { method: 'DELETE' })
+  if (res.ok) {
+    document.getElementById(`proj-img-card-${imgId}`)?.remove()
+    toast('Image removed.')
+  } else {
+    const d = await res.json(); toast(d.error || 'Error', 'error')
+  }
+}
+window.removeProjectImage = removeProjectImage
+
+async function setProjectLanding(projId, imgId) {
+  const res = await fetch(`/api/admin/projects/${projId}/images/${imgId}/landing`, { method: 'PATCH' })
+  if (res.ok) { loadProjectImages(); toast('Landing image set.') }
+  else { const d = await res.json(); toast(d.error || 'Error', 'error') }
+}
+window.setProjectLanding = setProjectLanding
 
 // SEO
 const SEO_PAGES = {

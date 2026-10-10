@@ -160,6 +160,91 @@ async function main() {
     res.json({ ok: true })
   })
 
+  // Projects API
+  // GET all projects for a category
+  app.get('/api/admin/projects', requireAuth, (req, res) => {
+    const cat = req.query.category
+    const projects = cat
+      ? queries.getProjectsByCategory.all(cat)
+      : queries.getAllProjects.all()
+    const result = projects.map(p => ({
+      ...p,
+      images: queries.getProjectImages.all(p.id)
+    }))
+    res.json(result)
+  })
+
+  // POST create project
+  app.post('/api/admin/projects', requireAuth, (req, res) => {
+    const { category, name } = req.body
+    if (!category || !name) return res.status(400).json({ error: 'category and name required' })
+    const maxSort = db.prepare('SELECT MAX(sort_order) as m FROM projects WHERE category=?').get(category)
+    const sort = (maxSort.m || 0) + 1
+    const { lastInsertRowid } = queries.insertProject.run(category, name.trim(), sort)
+    res.json({ ok: true, id: lastInsertRowid })
+  })
+
+  // PATCH rename project
+  app.patch('/api/admin/projects/:id', requireAuth, (req, res) => {
+    const { name } = req.body
+    if (!name) return res.status(400).json({ error: 'name required' })
+    queries.updateProjectName.run(name.trim(), req.params.id)
+    res.json({ ok: true })
+  })
+
+  // DELETE project (also deletes images via CASCADE)
+  app.delete('/api/admin/projects/:id', requireAuth, (req, res) => {
+    queries.deleteProject.run(req.params.id)
+    res.json({ ok: true })
+  })
+
+  // POST add image to project
+  const projImgUpload = multer({ storage: multer.diskStorage({
+    destination: uploadDir,
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase()
+      cb(null, Date.now() + ext)
+    }
+  })})
+
+  app.post('/api/admin/projects/:id/images', requireAuth, projImgUpload.single('image'), (req, res) => {
+    const proj = queries.getProjectById.get(req.params.id)
+    if (!proj) return res.status(404).json({ error: 'Project not found' })
+    if (!req.file) return res.status(400).json({ error: 'No file' })
+    const isLanding = req.body.is_landing === '1' ? 1 : 0
+    const maxSort = db.prepare('SELECT MAX(sort_order) as m FROM project_images WHERE project_id=?').get(proj.id)
+    const sort = (maxSort.m || 0) + 1
+    const { lastInsertRowid } = queries.insertProjectImage.run(proj.id, req.file.filename, isLanding, sort)
+    if (isLanding) queries.setLanding.run(lastInsertRowid, proj.id)
+    res.json({ ok: true, id: lastInsertRowid, filename: req.file.filename })
+  })
+
+  // DELETE image from project
+  app.delete('/api/admin/projects/:id/images/:imgId', requireAuth, (req, res) => {
+    const img = queries.getProjectImageById.get(req.params.imgId)
+    if (!img) return res.status(404).json({ error: 'Image not found' })
+    // Delete file from disk
+    try { fs.unlinkSync(resolve(uploadDir, img.filename)) } catch {}
+    queries.deleteProjectImage.run(req.params.imgId)
+    res.json({ ok: true })
+  })
+
+  // PATCH set landing image
+  app.patch('/api/admin/projects/:id/images/:imgId/landing', requireAuth, (req, res) => {
+    const img = queries.getProjectImageById.get(req.params.imgId)
+    if (!img) return res.status(404).json({ error: 'Image not found' })
+    queries.setLanding.run(req.params.imgId, req.params.id)
+    res.json({ ok: true })
+  })
+
+  // PATCH reorder projects
+  app.patch('/api/admin/projects/reorder', requireAuth, (req, res) => {
+    const { order } = req.body // array of {id, sort_order}
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'order array required' })
+    order.forEach(({ id, sort_order }) => queries.updateProjectSort.run(sort_order, id))
+    res.json({ ok: true })
+  })
+
   // Backup
   const BACKUP_DIR = resolve(__dirname, 'data/backups')
   if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true })
