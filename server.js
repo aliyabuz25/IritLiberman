@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import multer from 'multer'
 import fs from 'fs'
 import compression from 'compression'
-import { createServer as createViteServer } from 'vite'
+// vite is loaded dynamically only in dev mode (it's a devDependency)
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
 import db, { queries } from './db.js'
@@ -319,6 +319,7 @@ async function main() {
 
   // Static
   if (isDev) {
+    const { createServer: createViteServer } = await import('vite')
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'mpa',
@@ -375,7 +376,7 @@ async function main() {
       app.get('/' + slug, (_req, res) => res.sendFile(resolve(distPath, slug + '.html')))
     })
     app.get('/', (_req, res) => res.sendFile(resolve(distPath, 'index.html')))
-    app.get('*', (_req, res) => res.status(404).sendFile(resolve(distPath, 'index.html')))
+    app.get('/{*path}', (_req, res) => res.status(404).sendFile(resolve(distPath, 'index.html')))
   }
 
   app.listen(PORT, () => {
