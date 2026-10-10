@@ -64,12 +64,7 @@ db.exec(`
   try { db.exec(`ALTER TABLE seo ADD COLUMN ${col} TEXT DEFAULT ''`) } catch {}
 })
 
-// Seed admin
-const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get()
-if (userCount.c === 0) {
-  const defaultPass = bcrypt.hashSync('nigar2025', 10)
-  db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run('admin', defaultPass)
-}
+// No default admin seed — first-run setup screen handles this
 
 
 const pageCount = db.prepare('SELECT COUNT(*) as c FROM pages').get()

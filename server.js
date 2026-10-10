@@ -159,6 +159,24 @@ async function main() {
     res.json({ ok: true })
   })
 
+  // First-run setup
+  app.get('/api/admin/setup-status', (_req, res) => {
+    const count = db.prepare('SELECT COUNT(*) as c FROM users').get().c
+    res.json({ needsSetup: count === 0 })
+  })
+
+  app.post('/api/admin/setup', (req, res) => {
+    const count = db.prepare('SELECT COUNT(*) as c FROM users').get().c
+    if (count > 0) return res.status(403).json({ error: 'Setup already completed.' })
+    const { username, password } = req.body
+    if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' })
+    if (username.length < 3) return res.status(400).json({ error: 'Username must be at least 3 characters.' })
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' })
+    const hash = bcrypt.hashSync(password, 10)
+    db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash)
+    res.json({ ok: true })
+  })
+
   // Pages
   app.get('/api/admin/pages', requireAuth, (_req, res) => {
     const rows = db.prepare('SELECT slug, name, url FROM pages ORDER BY id').all()
@@ -376,7 +394,10 @@ async function main() {
       app.get('/' + slug, (_req, res) => res.sendFile(resolve(distPath, slug + '.html')))
     })
     app.get('/', (_req, res) => res.sendFile(resolve(distPath, 'index.html')))
-    app.get('/{*path}', (_req, res) => res.status(404).sendFile(resolve(distPath, 'index.html')))
+    app.get('/{*path}', (req, res) => {
+      if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' })
+      res.status(404).sendFile(resolve(distPath, 'index.html'))
+    })
   }
 
   app.listen(PORT, '0.0.0.0', () => {

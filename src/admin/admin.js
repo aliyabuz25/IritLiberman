@@ -1267,9 +1267,58 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
 
+// Setup
+async function doSetup() {
+  const u = document.getElementById('setup-user').value.trim()
+  const p = document.getElementById('setup-pass').value
+  const p2 = document.getElementById('setup-pass-confirm').value
+  const errEl = document.getElementById('setup-error')
+  const btn = document.getElementById('setup-btn')
+
+  errEl.classList.add('d-none')
+  if (!u || u.length < 3) { errEl.textContent = 'Username must be at least 3 characters.'; errEl.classList.remove('d-none'); return }
+  if (p.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.classList.remove('d-none'); return }
+  if (p !== p2) { errEl.textContent = 'Passwords do not match.'; errEl.classList.remove('d-none'); return }
+
+  btn.disabled = true
+  btn.textContent = 'Creating...'
+
+  try {
+    const res = await fetch('/api/admin/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      document.getElementById('setup-screen').classList.add('d-none')
+      document.getElementById('inp-user').value = u
+      document.getElementById('login-screen').classList.remove('d-none')
+      toast('Account created! Please sign in.')
+    } else {
+      errEl.textContent = data.error || 'Setup failed.'
+      errEl.classList.remove('d-none')
+    }
+  } catch {
+    errEl.textContent = 'Server error. Please try again.'
+    errEl.classList.remove('d-none')
+  }
+  btn.disabled = false
+  btn.textContent = 'Create Account & Continue'
+}
+window.doSetup = doSetup
+
+document.getElementById('setup-pass-confirm')?.addEventListener('keydown', e => { if (e.key === 'Enter') doSetup() })
+
 // Boot
 ;(async () => {
   try {
+    const setup = await fetch('/api/admin/setup-status').then(r => r.json())
+    if (setup.needsSetup) {
+      document.getElementById('setup-screen').classList.remove('d-none')
+      document.body.className = 'hold-transition login-page'
+      return
+    }
     const d = await fetch('/api/admin/me').then(r => r.json())
     if (d.authenticated) {
       showApp()

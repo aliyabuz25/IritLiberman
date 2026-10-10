@@ -17,7 +17,48 @@
 <div id="toast-container"></div>
 
 <!-- Login -->
-<div id="login-screen" class="login-page d-flex justify-content-center align-items-center" style="min-height: 100vh; position: fixed; inset: 0; z-index: 10000; background: #e9ecef;">
+<!-- Setup Screen (first run) -->
+<div id="setup-screen" class="login-page d-flex justify-content-center align-items-center d-none" style="min-height: 100vh; position: fixed; inset: 0; z-index: 10001; background: #e9ecef;">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="#"><b>Octo</b>CMS <span style="font-size:.55em;opacity:.6;font-weight:400;">Lite</span></a>
+      <p style="font-size:.7rem;color:#aaa;margin-top:4px;font-weight:400;letter-spacing:.05em;">Irit Liberman Studio</p>
+    </div>
+    <div class="card card-outline card-success">
+      <div class="card-body login-card-body">
+        <p class="login-box-msg" style="font-weight:600;">Welcome! Create your admin account</p>
+        <p class="text-muted text-center" style="font-size:.8rem;margin-top:-8px;margin-bottom:16px;">This is the first time setup. Your credentials will be used to access the admin panel.</p>
+        <div id="setup-error" class="alert alert-danger d-none" style="padding: 0.5rem; font-size: 0.85rem;"></div>
+        <div class="input-group mb-3">
+          <input type="text" id="setup-user" class="form-control" placeholder="Choose a username (min. 3 chars)" autocomplete="off">
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-user"></span></div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" id="setup-pass" class="form-control" placeholder="Choose a password (min. 8 chars)" autocomplete="new-password">
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-lock"></span></div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" id="setup-pass-confirm" class="form-control" placeholder="Confirm password" autocomplete="new-password">
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-lock"></span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <button onclick="doSetup()" class="btn btn-success btn-block" id="setup-btn">Create Account & Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Screen -->
+<div id="login-screen" class="login-page d-flex justify-content-center align-items-center d-none" style="min-height: 100vh; position: fixed; inset: 0; z-index: 10000; background: #e9ecef;">
   <div class="login-box">
     <div class="login-logo">
       <a href="#"><b>Octo</b>CMS <span style="font-size:.55em;opacity:.6;font-weight:400;">Lite</span></a>
