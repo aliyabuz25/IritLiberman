@@ -480,16 +480,45 @@ async function main() {
       next()
     })
 
-    // Long-lived cache for images
-    app.use('/figma_images', express.static(resolve(distPath, 'figma_images'), {
-      maxAge: '30d',
+    // Long-lived cache for hashed assets (JS/CSS — Vite adds content hash to filename)
+    app.use('/assets', express.static(resolve(distPath, 'assets'), {
+      maxAge: '1y',
       immutable: true
     }))
-    app.use(express.static(distPath))
+
+    // Images: revalidate always so replaced images appear immediately
+    app.use('/figma_images', express.static(resolve(distPath, 'figma_images'), {
+      etag: true,
+      lastModified: true,
+      setHeaders(res) {
+        res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate')
+      }
+    }))
+
+    // HTML pages: never cache — always serve latest
+    const htmlHeaders = (_req, res, next) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.setHeader('Pragma', 'no-cache')
+      res.setHeader('Expires', '0')
+      next()
+    }
+
+    app.use(express.static(distPath, {
+      etag: true,
+      lastModified: true,
+      setHeaders(res, filePath) {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+          res.setHeader('Pragma', 'no-cache')
+          res.setHeader('Expires', '0')
+        }
+      }
+    }))
+
     PROD_PAGES.forEach(slug => {
-      app.get('/' + slug, (_req, res) => res.sendFile(resolve(distPath, slug + '.html')))
+      app.get('/' + slug, htmlHeaders, (_req, res) => res.sendFile(resolve(distPath, slug + '.html')))
     })
-    app.get('/', (_req, res) => res.sendFile(resolve(distPath, 'index.html')))
+    app.get('/', htmlHeaders, (_req, res) => res.sendFile(resolve(distPath, 'index.html')))
     app.get('/{*path}', (req, res) => {
       if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' })
       res.status(404).sendFile(resolve(distPath, 'index.html'))
