@@ -64,6 +64,34 @@ db.exec(`
   try { db.exec(`ALTER TABLE seo ADD COLUMN ${col} TEXT DEFAULT ''`) } catch {}
 })
 
+// Migration — ensure project title i18n keys exist in older DBs
+;[
+  ['custom-homes','project.bird-street',    'en','THE BIRD STREET'],
+  ['custom-homes','project.bird-street-2',  'en','THE BIRD STREET 2'],
+  ['custom-homes','project.bird-street-3',  'en','THE BIRD STREET 3'],
+  ['custom-homes','project.beverly-hills',  'en','BEVERLY HILLS'],
+  ['custom-homes','project.pacific-palisades','en','PACIFIC PALISADES'],
+  ['custom-homes','project.santa-monica',   'en','SANTA MONICA'],
+  ['custom-homes','project.pasadena',       'en','PASADENA'],
+  ['hospitality','project.bottega-louie',   'en','BOTTEGA LOUIE WEHO'],
+  ['hospitality','project.1-hotel-weho',    'en','1 HOTEL WEHO'],
+  ['hospitality','project.edition-weho',    'en','EDITION WEHO'],
+  ['hospitality','project.pendry-weho',     'en','PENDRY WEHO'],
+  ['hospitality','project.regent-hotel',    'en','REGENT HOTEL SANTA MONICA'],
+  ['commercial','project.santa-monica',     'en','SANTA MONICA'],
+  ['commercial','project.kurve-wilshire',   'en','KURVE ON WILSHIRE'],
+  ['commercial','project.skyview-sunset',   'en','SKYVIEW SUNSET BOULEVARD'],
+  ['commercial','project.dtla',             'en','DTLA'],
+  ['commercial','project.circa-dtla',       'en','CIRCA DTLA'],
+  ['commercial','project.aka-sunset',       'en','AKA ON SUNSET BLVD'],
+  ['commercial','project.oceanwide-plaza',  'en','OCEANWIDE PLAZA'],
+  ['commercial','project.harland-weho',     'en','THE HARLAND WEHO'],
+].forEach(([page,key,lang,value]) => {
+  try {
+    db.prepare('INSERT OR IGNORE INTO i18n (page,key,lang,value) VALUES (?,?,?,?)').run(page,key,lang,value)
+  } catch {}
+})
+
 // No default admin seed — first-run setup screen handles this
 
 
@@ -281,6 +309,32 @@ if (i18nCount.c === 0) {
     ['home','philosophy.assurance', 'en','No pressure to settle. Just thoughtful guidance, honest relationships, and the quiet confidence that the right material will find its way to your project.'],
     ['home','philosophy.assurance', 'tr','Uzlaşmaya zorlamak yok. Sadece düşünceli rehberlik, dürüst ilişkiler ve doğru malzemenin projenize ulaşacağına dair sessiz bir güven.'],
     ['home','philosophy.assurance', 'de','Kein Druck zu einigen. Nur durchdachte Begleitung, ehrliche Beziehungen und stilles Vertrauen.'],
+
+    // custom homes — project titles
+    ['custom-homes','project.bird-street',    'en','THE BIRD STREET'],
+    ['custom-homes','project.bird-street-2',  'en','THE BIRD STREET 2'],
+    ['custom-homes','project.bird-street-3',  'en','THE BIRD STREET 3'],
+    ['custom-homes','project.beverly-hills',  'en','BEVERLY HILLS'],
+    ['custom-homes','project.pacific-palisades','en','PACIFIC PALISADES'],
+    ['custom-homes','project.santa-monica',   'en','SANTA MONICA'],
+    ['custom-homes','project.pasadena',       'en','PASADENA'],
+
+    // hospitality — project titles
+    ['hospitality','project.bottega-louie',   'en','BOTTEGA LOUIE WEHO'],
+    ['hospitality','project.1-hotel-weho',    'en','1 HOTEL WEHO'],
+    ['hospitality','project.edition-weho',    'en','EDITION WEHO'],
+    ['hospitality','project.pendry-weho',     'en','PENDRY WEHO'],
+    ['hospitality','project.regent-hotel',    'en','REGENT HOTEL SANTA MONICA'],
+
+    // commercial — project titles
+    ['commercial','project.santa-monica',     'en','SANTA MONICA'],
+    ['commercial','project.kurve-wilshire',   'en','KURVE ON WILSHIRE'],
+    ['commercial','project.skyview-sunset',   'en','SKYVIEW SUNSET BOULEVARD'],
+    ['commercial','project.dtla',             'en','DTLA'],
+    ['commercial','project.circa-dtla',       'en','CIRCA DTLA'],
+    ['commercial','project.aka-sunset',       'en','AKA ON SUNSET BLVD'],
+    ['commercial','project.oceanwide-plaza',  'en','OCEANWIDE PLAZA'],
+    ['commercial','project.harland-weho',     'en','THE HARLAND WEHO'],
   ]
 
   rows.forEach(r => ins.run(...r))
