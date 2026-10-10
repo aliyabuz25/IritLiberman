@@ -5,14 +5,10 @@
  * <html data-i18n-page="home">.
  */
 
-const SUPPORTED = ['en', 'tr', 'de']
 const DEFAULT_LANG = 'en'
 
 function getLang() {
-  const stored = localStorage.getItem('lang')
-  if (stored && SUPPORTED.includes(stored)) return stored
-  const browser = navigator.language?.slice(0, 2)
-  return SUPPORTED.includes(browser) ? browser : DEFAULT_LANG
+  return DEFAULT_LANG
 }
 
 function applyTranslations(data) {
