@@ -379,9 +379,9 @@ async function main() {
     app.get('/{*path}', (_req, res) => res.status(404).sendFile(resolve(distPath, 'index.html')))
   }
 
-  app.listen(PORT, () => {
-    console.log(`\n  Server → http://localhost:${PORT}`)
-    console.log(`  Admin  → http://localhost:${PORT}/admin/\n`)
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n  Server → http://0.0.0.0:${PORT}`)
+    console.log(`  Admin  → http://0.0.0.0:${PORT}/admin/\n`)
   })
 }
 
