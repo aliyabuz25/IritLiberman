@@ -3,6 +3,7 @@ import session from 'express-session'
 import bcrypt from 'bcryptjs'
 import multer from 'multer'
 import fs from 'fs'
+import path from 'path'
 import compression from 'compression'
 // vite is loaded dynamically only in dev mode (it's a devDependency)
 import { fileURLToPath } from 'url'
@@ -157,6 +158,101 @@ async function main() {
     }
     queries.deleteUser.run(req.params.id)
     res.json({ ok: true })
+  })
+
+  // Backup
+  const BACKUP_DIR = resolve(__dirname, 'data/backups')
+  if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true })
+
+  function createBackup(label = 'manual') {
+    const dbFile = resolve(__dirname, 'data/nigar.db')
+    if (!fs.existsSync(dbFile)) throw new Error('Database not found.')
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const filename = `backup-${ts}-${label}.db`
+    const dest = resolve(BACKUP_DIR, filename)
+    fs.copyFileSync(dbFile, dest)
+    // Keep only last 30 backups
+    const files = fs.readdirSync(BACKUP_DIR)
+      .filter(f => f.endsWith('.db'))
+      .sort()
+    if (files.length > 30) {
+      files.slice(0, files.length - 30).forEach(f => {
+        try { fs.unlinkSync(resolve(BACKUP_DIR, f)) } catch {}
+      })
+    }
+    return filename
+  }
+
+  // Auto daily backup — runs every 24h
+  function scheduleDailyBackup() {
+    const now = new Date()
+    const next = new Date(now)
+    next.setHours(3, 0, 0, 0) // 3 AM
+    if (next <= now) next.setDate(next.getDate() + 1)
+    const delay = next - now
+    setTimeout(() => {
+      try { createBackup('auto') } catch {}
+      setInterval(() => { try { createBackup('auto') } catch {} }, 24 * 60 * 60 * 1000)
+    }, delay)
+  }
+  scheduleDailyBackup()
+
+  app.get('/api/admin/backups', requireAuth, (_req, res) => {
+    try {
+      const files = fs.readdirSync(BACKUP_DIR)
+        .filter(f => f.endsWith('.db'))
+        .sort().reverse()
+        .map(f => {
+          const stat = fs.statSync(resolve(BACKUP_DIR, f))
+          return { name: f, size: stat.size, created: stat.mtime.toISOString() }
+        })
+      res.json(files)
+    } catch { res.json([]) }
+  })
+
+  app.post('/api/admin/backups', requireAuth, (_req, res) => {
+    try {
+      const filename = createBackup('manual')
+      res.json({ ok: true, filename })
+    } catch (e) {
+      res.status(500).json({ error: e.message })
+    }
+  })
+
+  app.get('/api/admin/backups/:name', requireAuth, (req, res) => {
+    const name = path.basename(req.params.name)
+    if (!name.endsWith('.db') || name.includes('..')) return res.status(400).json({ error: 'Invalid filename.' })
+    const file = resolve(BACKUP_DIR, name)
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'Backup not found.' })
+    res.setHeader('Content-Disposition', `attachment; filename="${name}"`)
+    res.setHeader('Content-Type', 'application/octet-stream')
+    res.sendFile(file)
+  })
+
+  app.delete('/api/admin/backups/:name', requireAuth, (req, res) => {
+    const name = path.basename(req.params.name)
+    if (!name.endsWith('.db') || name.includes('..')) return res.status(400).json({ error: 'Invalid filename.' })
+    const file = resolve(BACKUP_DIR, name)
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'Backup not found.' })
+    fs.unlinkSync(file)
+    res.json({ ok: true })
+  })
+
+  // Restore backup (replaces current DB, requires server restart)
+  const backupUpload = multer({ dest: resolve(__dirname, 'data/backups/tmp') })
+  app.post('/api/admin/backups/restore', requireAuth, backupUpload.single('backup'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' })
+    try {
+      const dbFile = resolve(__dirname, 'data/nigar.db')
+      try { createBackup('pre-restore') } catch {}
+      fs.copyFileSync(req.file.path, dbFile)
+      try { fs.unlinkSync(req.file.path) } catch {}
+      res.json({ ok: true })
+      // Graceful restart so DB re-initializes
+      setTimeout(() => process.exit(0), 800)
+    } catch (e) {
+      res.status(500).json({ error: e.message })
+    }
   })
 
   // First-run setup

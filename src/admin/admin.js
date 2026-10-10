@@ -93,7 +93,7 @@ function showSection(name, el) {
     el = document.querySelector(`.nav-sidebar a[onclick*="'${name}'"]`)
   }
 
-  ['dashboard','pages','projects','gallery','messages','localization','seo','users','settings'].forEach(s => {
+  ['dashboard','pages','projects','gallery','messages','localization','seo','users','backup','settings'].forEach(s => {
     const sec = document.getElementById('sec-' + s)
     if (sec) sec.classList.add('d-none')
   })
@@ -104,7 +104,7 @@ function showSection(name, el) {
   if (el) el.classList.add('active')
   
   const titles = {
-    dashboard: 'Dashboard', pages: 'Pages', projects: 'Project Images', gallery: 'Media Library', messages: 'Inbox', localization: 'Content & Localization', seo: 'SEO', users: 'Admin Accounts', settings: 'Settings'
+    dashboard: 'Dashboard', pages: 'Pages', projects: 'Project Images', gallery: 'Media Library', messages: 'Inbox', localization: 'Content & Localization', seo: 'SEO', users: 'Admin Accounts', backup: 'Backup & Restore', settings: 'Settings'
   }
   document.getElementById('section-title').textContent = titles[name] || name
 
@@ -117,6 +117,7 @@ function showSection(name, el) {
   if (name === 'seo' && !_sectionLoaded.seo) { loadSeo(); _sectionLoaded.seo = true }
   if (name === 'projects') loadProjectImages()
   if (name === 'settings') loadSettings()
+  if (name === 'backup') loadBackups()
   
   return false
 }
@@ -1140,6 +1141,113 @@ async function saveSeo() {
   }
 }
 window.saveSeo = saveSeo
+
+// Backup & Restore
+async function loadBackups() {
+  const list = document.getElementById('backup-list')
+  if (!list) return
+  list.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-3"><i class="fas fa-sync-alt fa-spin"></i> Loading...</td></tr>'
+  try {
+    const backups = await fetch('/api/admin/backups').then(r => r.json())
+    if (!backups.length) {
+      list.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-3">No backups yet. Click "Create Backup" to make one.</td></tr>'
+      return
+    }
+    list.innerHTML = backups.map(b => {
+      const date = new Date(b.created).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+      const sizeMB = (b.size / 1048576).toFixed(2)
+      const label = b.name.includes('auto') ? '<span class="badge badge-secondary ml-1">auto</span>' :
+                    b.name.includes('pre-restore') ? '<span class="badge badge-warning ml-1">pre-restore</span>' :
+                    '<span class="badge badge-primary ml-1">manual</span>'
+      return `<tr>
+        <td style="font-size:.78rem;word-break:break-all;">${esc(b.name)}${label}</td>
+        <td style="font-size:.78rem;white-space:nowrap;">${sizeMB} MB</td>
+        <td style="font-size:.78rem;white-space:nowrap;">${date}</td>
+        <td style="white-space:nowrap;">
+          <a href="/api/admin/backups/${encodeURIComponent(b.name)}" class="btn btn-xs btn-outline-dark mr-1" download title="Download"><i class="fas fa-download"></i></a>
+          <button onclick="deleteBackup('${esc(b.name)}')" class="btn btn-xs btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`
+    }).join('')
+  } catch {
+    list.innerHTML = '<tr><td colspan="4" class="text-center text-danger p-3">Failed to load backups.</td></tr>'
+  }
+}
+window.loadBackups = loadBackups
+
+async function createBackup() {
+  const btn = document.querySelector('[onclick="createBackup()"]')
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Creating...' }
+  try {
+    const res = await fetch('/api/admin/backups', { method: 'POST' })
+    const data = await res.json()
+    if (res.ok) {
+      toast(`Backup created: ${data.filename}`)
+      loadBackups()
+    } else {
+      toast(data.error || 'Failed to create backup.', 'error')
+    }
+  } catch {
+    toast('Server error.', 'error')
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus mr-1"></i>Create Backup' }
+}
+window.createBackup = createBackup
+
+async function deleteBackup(name) {
+  if (!confirm(`Delete backup "${name}"?`)) return
+  try {
+    const res = await fetch(`/api/admin/backups/${encodeURIComponent(name)}`, { method: 'DELETE' })
+    if (res.ok) { toast('Backup deleted.'); loadBackups() }
+    else { const d = await res.json(); toast(d.error || 'Failed to delete.', 'error') }
+  } catch { toast('Server error.', 'error') }
+}
+window.deleteBackup = deleteBackup
+
+async function restoreBackup(input) {
+  const errEl = document.getElementById('restore-error')
+  const okEl = document.getElementById('restore-success')
+  errEl.classList.add('d-none')
+  okEl.classList.add('d-none')
+
+  if (!input.files[0]) return
+  const file = input.files[0]
+  if (!file.name.endsWith('.db')) {
+    errEl.textContent = 'Please select a valid .db backup file.'
+    errEl.classList.remove('d-none')
+    return
+  }
+
+  if (!confirm(`Restore from "${file.name}"? Current data will be replaced. A pre-restore backup will be created automatically.`)) {
+    input.value = ''
+    return
+  }
+
+  const label = input.nextElementSibling
+  if (label) label.textContent = 'Uploading...'
+
+  const fd = new FormData()
+  fd.append('backup', file)
+
+  try {
+    const res = await fetch('/api/admin/backups/restore', { method: 'POST', body: fd })
+    const data = await res.json()
+    if (res.ok) {
+      okEl.textContent = 'Restore successful! Server is restarting — please wait 5 seconds then refresh.'
+      okEl.classList.remove('d-none')
+      setTimeout(() => window.location.reload(), 6000)
+    } else {
+      errEl.textContent = data.error || 'Restore failed.'
+      errEl.classList.remove('d-none')
+    }
+  } catch {
+    errEl.textContent = 'Server error during restore.'
+    errEl.classList.remove('d-none')
+  }
+  input.value = ''
+  if (label) label.textContent = 'Choose .db file'
+}
+window.restoreBackup = restoreBackup
 
 // Settings
 async function loadSettings() {

@@ -169,6 +169,11 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="#" onclick="return showSection('backup', this)" class="nav-link">
+              <p>Backup & Restore</p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="#" onclick="return showSection('settings', this)" class="nav-link">
               <p>Settings</p>
             </a>
@@ -524,6 +529,52 @@
                   <div id="seo-form-area">
                     <div class="text-center text-muted p-5"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div id="sec-backup" class="d-none">
+          <div class="row">
+            <div class="col-md-7">
+              <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h3 class="card-title mb-0">Backup History</h3>
+                  <div style="display:flex;gap:8px;">
+                    <button class="btn btn-sm btn-primary" onclick="createBackup()"><i class="fas fa-plus mr-1"></i>Create Backup</button>
+                    <button class="btn btn-sm btn-tool" onclick="loadBackups()"><i class="fas fa-sync-alt"></i></button>
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <table class="table table-sm mb-0">
+                    <thead><tr><th>File</th><th>Size</th><th>Date</th><th style="width:100px;"></th></tr></thead>
+                    <tbody id="backup-list">
+                      <tr><td colspan="4" class="text-center text-muted p-4">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div class="card shadow-sm mb-4">
+                <div class="card-header"><h3 class="card-title mb-0">Restore from File</h3></div>
+                <div class="card-body">
+                  <p class="text-muted" style="font-size:.85rem;">Upload a previously downloaded <code>.db</code> backup file to restore the database. The server will restart automatically.</p>
+                  <div id="restore-error" class="alert alert-danger d-none" style="font-size:.85rem;padding:.5rem .75rem;"></div>
+                  <div id="restore-success" class="alert alert-success d-none" style="font-size:.85rem;padding:.5rem .75rem;"></div>
+                  <div class="custom-file mb-3">
+                    <input type="file" class="custom-file-input" id="restore-file" accept=".db" onchange="restoreBackup(this)">
+                    <label class="custom-file-label" for="restore-file">Choose .db file</label>
+                  </div>
+                  <small class="text-muted d-block">A pre-restore backup is created automatically before overwriting.</small>
+                </div>
+              </div>
+              <div class="card shadow-sm">
+                <div class="card-header"><h3 class="card-title mb-0">Auto Backup</h3></div>
+                <div class="card-body">
+                  <p class="text-muted mb-0" style="font-size:.85rem;">Daily automatic backups run at <strong>03:00 AM</strong> server time. Up to <strong>30 backups</strong> are retained; older ones are deleted automatically.</p>
                 </div>
               </div>
             </div>
