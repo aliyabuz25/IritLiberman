@@ -30,10 +30,13 @@ services:
     networks:
       - octobot-net
       - edge
+    expose:
+      - "3000"
     labels:
       - traefik.enable=true
       - traefik.docker.network=edge
       - traefik.http.services.irit-liberman.loadbalancer.server.port=3000
+      - traefik.http.services.irit-liberman.loadbalancer.server.scheme=http
 
       # HTTP → HTTPS redirect
       - traefik.http.middlewares.irit-https.redirectscheme.scheme=https
