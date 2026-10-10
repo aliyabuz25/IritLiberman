@@ -29,55 +29,71 @@
         && window.getComputedStyle(el).visibility !== 'hidden';
     }
 
-    // Experience-style cards: .project-card > .card-img (skip label-only / hidden)
+    // Experience-style cards: each card opens its OWN isolated gallery
     document.querySelectorAll('.project-card').forEach((card) => {
       if (card.classList.contains('project-card--label')) return;
       if (!isDisplayed(card)) return;
       const img = card.querySelector('.card-img, img');
       if (!img || !isDisplayed(img)) return;
       const title = card.querySelector('.card-title')?.textContent?.trim() || img.getAttribute('alt') || '';
-      const index = items.length;
-      items.push({
+
+      // Build this card's own image list
+      const cardItems = [];
+      cardItems.push({
         src: img.getAttribute('src'),
         alt: img.getAttribute('alt') || title,
         title: title,
         focusEl: card,
       });
 
-      // Extra images attached to this card via data-extra="url1,url2"
-      const extras = card.getAttribute('data-extra')
+      const extras = card.getAttribute('data-extra');
       if (extras) {
         extras.split(',').map(s => s.trim()).filter(Boolean).forEach(src => {
-          items.push({ src, alt: title, title, focusEl: card })
-        })
+          cardItems.push({ src, alt: title, title, focusEl: card });
+        });
       }
+
+      // Register a global item entry just for capability grids (unused for cards)
+      const index = items.length;
+      items.push(...cardItems);
 
       if (!card.getAttribute('aria-label')) {
         card.setAttribute('aria-label', `View ${title || 'project image'}`);
       }
-      bindTrigger(card, index);
+
+      // Each card click opens lightbox scoped to ONLY this card's images
+      card.style.cursor = 'pointer';
+      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+      if (!card.hasAttribute('role')) card.setAttribute('role', 'button');
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;
+        openLightboxScoped(cardItems, 0);
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightboxScoped(cardItems, 0);
+        }
+      });
     });
 
-    // Capability grids: direct img[data-lightbox] (skip those inside .project-card)
+    // Capability grids: direct img[data-lightbox] — each image opens its own single-image lightbox
     document.querySelectorAll('img[data-lightbox]').forEach((img) => {
       if (img.closest('.project-card')) return;
       const title = img.getAttribute('alt') || '';
-      const index = items.length;
-      items.push({
-        src: img.getAttribute('src'),
-        alt: title,
-        title: title,
-        focusEl: img,
-      });
+      const capItem = [{ src: img.getAttribute('src'), alt: title, title, focusEl: img }];
       if (!img.getAttribute('aria-label')) {
         img.setAttribute('aria-label', `View ${title || 'image'}`);
       }
-      bindTrigger(img, index);
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', () => openLightboxScoped(capItem, 0));
     });
 
     if (!items.length) return;
 
     let currentIndex = 0;
+    let activeItems = items; // scoped to current gallery
 
     const lightbox = document.createElement('div');
     lightbox.className = 'irit-lightbox';
@@ -130,35 +146,46 @@
     const focusables = [closeBtn, prevBtn, nextBtn];
 
     function updateView() {
-      const item = items[currentIndex];
+      const item = activeItems[currentIndex];
       imgElement.src = item.src;
       imgElement.alt = item.alt;
       titleElement.textContent = item.title;
-      counterElement.textContent = `${currentIndex + 1} / ${items.length}`;
+      counterElement.textContent = activeItems.length > 1
+        ? `${currentIndex + 1} / ${activeItems.length}`
+        : '';
     }
 
-    function openLightbox(index) {
-      currentIndex = index;
+    function openLightboxScoped(scopedItems, startIndex) {
+      activeItems = scopedItems;
+      currentIndex = startIndex;
       updateView();
       lightbox.classList.add('is-open');
       document.body.classList.add('lightbox-open');
+      // Show/hide nav arrows based on item count
+      const hasMultiple = activeItems.length > 1;
+      prevBtn.style.display = hasMultiple ? '' : 'none';
+      nextBtn.style.display = hasMultiple ? '' : 'none';
       closeBtn.focus();
+    }
+
+    function openLightbox(index) {
+      openLightboxScoped(items, index);
     }
 
     function closeLightbox() {
       lightbox.classList.remove('is-open');
       document.body.classList.remove('lightbox-open');
-      const focusEl = items[currentIndex] && items[currentIndex].focusEl;
+      const focusEl = activeItems[currentIndex] && activeItems[currentIndex].focusEl;
       if (focusEl && typeof focusEl.focus === 'function') focusEl.focus();
     }
 
     function showPrev() {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      currentIndex = (currentIndex - 1 + activeItems.length) % activeItems.length;
       updateView();
     }
 
     function showNext() {
-      currentIndex = (currentIndex + 1) % items.length;
+      currentIndex = (currentIndex + 1) % activeItems.length;
       updateView();
     }
 
