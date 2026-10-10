@@ -112,7 +112,7 @@ function showSection(name, el) {
   if (name === 'messages') loadMessages()
   if (name === 'localization' && !_sectionLoaded.localization) { loadI18n(); _sectionLoaded.localization = true }
   if (name === 'users') loadUsers()
-  if (name === 'gallery' && !_sectionLoaded.gallery) { loadGallery(); _sectionLoaded.gallery = true }
+  if (name === 'gallery') { loadGallery(); _sectionLoaded.gallery = true }
   if (name === 'pages' && !_sectionLoaded.pages) { loadPages(); _sectionLoaded.pages = true }
   if (name === 'seo' && !_sectionLoaded.seo) { loadSeo(); _sectionLoaded.seo = true }
   if (name === 'projects') loadProjectImages()
@@ -1335,35 +1335,62 @@ async function loadPages() {
 }
 window.loadPages = loadPages
 
+let _galleryImages = []
+
+function imgCategory(name) {
+  if (name.startsWith('ch-'))   return 'ch-'
+  if (name.startsWith('hosp-')) return 'hosp-'
+  if (name.startsWith('comm-')) return 'comm-'
+  if (name.startsWith('cap-') || name.startsWith('bend-') || name.startsWith('furn-') || name.startsWith('stone-')) return 'cap-'
+  return 'other'
+}
+
+function renderGalleryFilter() {
+  const grid  = document.getElementById('gallery-grid')
+  const cat   = document.getElementById('gallery-category')?.value || 'all'
+  const q     = (document.getElementById('gallery-search')?.value || '').toLowerCase()
+  const countEl = document.getElementById('gallery-count')
+
+  const filtered = _galleryImages.filter(img => {
+    const matchCat = cat === 'all' || imgCategory(img) === cat
+    const matchQ   = !q || img.toLowerCase().includes(q)
+    return matchCat && matchQ
+  })
+
+  if (countEl) countEl.textContent = `${filtered.length} image${filtered.length !== 1 ? 's' : ''}`
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="col-12 text-center text-muted p-4">No images found.</div>'
+    return
+  }
+
+  grid.innerHTML = ''
+  filtered.forEach(img => {
+    const col = document.createElement('div')
+    col.className = 'col-6 col-md-2 mb-3'
+    col.innerHTML = `
+      <div style="aspect-ratio:1;overflow:hidden;border-radius:8px;border:1px solid #e0d8cf;position:relative;">
+        <img src="/figma_images/${img}"
+          style="width:100%;height:100%;object-fit:cover"
+          onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#ada398;font-size:.75rem;padding:4px;text-align:center\\'>${img}</div>'">
+        <button onclick="deleteImage('${img}')" class="btn btn-sm btn-danger" style="position:absolute;top:5px;right:5px;opacity:0.85;padding:2px 6px;">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div style="font-size:.7rem;color:#84796d;margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${img}">${img}</div>
+    `
+    grid.appendChild(col)
+  })
+}
+window.renderGalleryFilter = renderGalleryFilter
+
 async function loadGallery() {
   const grid = document.getElementById('gallery-grid')
-  
+  grid.innerHTML = '<div class="col-12 text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>'
   try {
     const res = await fetch('/api/admin/images')
-    const images = await res.json()
-    
-    if (!images || images.length === 0) {
-      grid.innerHTML = '<div class="col-12 text-center text-muted p-4">No images found.</div>'
-      return
-    }
-
-    grid.innerHTML = ''
-    images.forEach(img => {
-      const col = document.createElement('div')
-      col.className = 'col-6 col-md-3 mb-3'
-      col.innerHTML = `
-        <div style="aspect-ratio:1;overflow:hidden;border-radius:8px;border:1px solid #e0d8cf;position:relative;">
-          <img src="/figma_images/${img}"
-            style="width:100%;height:100%;object-fit:cover"
-            onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#ada398;font-size:.75rem\\'>${img}</div>'">
-          <button onclick="deleteImage('${img}')" class="btn btn-sm btn-danger" style="position:absolute;top:5px;right:5px;opacity:0.8;padding:2px 6px;">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-        <div style="font-size:.72rem;color:#84796d;margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${img}</div>
-      `
-      grid.appendChild(col)
-    })
+    _galleryImages = await res.json()
+    renderGalleryFilter()
   } catch (err) {
     grid.innerHTML = '<div class="col-12 text-center text-danger p-4">Error loading images.</div>'
   }

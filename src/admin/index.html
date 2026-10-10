@@ -328,18 +328,27 @@
         <!-- Gallery -->
         <div id="sec-gallery" class="d-none">
           <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h3 class="card-title">Media Library <small class="text-muted fw-normal" style="font-size:.8rem">figma_images/</small></h3>
-              <div class="card-tools">
-                <div class="custom-file" style="width: 250px;">
+            <div class="card-header d-flex align-items-center flex-wrap" style="gap:8px;">
+              <h3 class="card-title mb-0">Media Library</h3>
+              <select id="gallery-category" class="form-control form-control-sm ml-2" style="width:200px;" onchange="renderGalleryFilter()">
+                <option value="all">All Images</option>
+                <option value="ch-">Custom Homes</option>
+                <option value="hosp-">Hospitality</option>
+                <option value="comm-">Commercial</option>
+                <option value="cap-">Capabilities</option>
+                <option value="other">Other</option>
+              </select>
+              <input id="gallery-search" type="text" class="form-control form-control-sm ml-1" placeholder="Search filename..." style="width:180px;" oninput="renderGalleryFilter()">
+              <div class="ml-auto d-flex align-items-center" style="gap:8px;">
+                <span id="gallery-count" class="text-muted" style="font-size:.8rem;"></span>
+                <div class="custom-file" style="width:200px;">
                   <input type="file" class="custom-file-input" id="gallery-upload-new" accept="image/*" onchange="uploadNewImage(this)">
                   <label class="custom-file-label" for="gallery-upload-new">Upload New Image</label>
                 </div>
               </div>
             </div>
             <div class="card-body">
-              <p class="text-muted" style="font-size:.85rem">Images are stored in the static folder. Upload a new file or replace an existing one.</p>
-              <div id="gallery-grid" class="row g-2 mt-2"></div>
+              <div id="gallery-grid" class="row g-2 mt-1"></div>
             </div>
           </div>
         </div>
