@@ -47,13 +47,16 @@ body, .wrapper, .main-header, .main-sidebar, .content-wrapper,
   gap: 10px;
 }
 .brand-link:hover { background: #f4ede3 !important; }
-.brand-link .brand-text {
+.brand-link .brand-text,
+.brand-link .brand-text *,
+.brand-link b,
+.brand-link span {
   color: #201b17 !important;
   font-weight: 700 !important;
   font-size: .95rem !important;
   letter-spacing: -.01em;
+  opacity: 1 !important;
 }
-.brand-link b { color: #201b17 !important; }
 
 /* User panel */
 .user-panel {
