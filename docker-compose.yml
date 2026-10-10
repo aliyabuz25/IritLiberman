@@ -17,7 +17,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: irit-liberman:latest
     container_name: irit-liberman
     restart: unless-stopped
     environment:
