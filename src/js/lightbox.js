@@ -32,6 +32,8 @@
     // Experience-style cards: each card opens its OWN isolated gallery
     document.querySelectorAll('.project-card').forEach((card) => {
       if (card.classList.contains('project-card--label')) return;
+      if (card.classList.contains('project-card--mobile-only')) return;
+      if (card.classList.contains('project-card--mobile-hide')) return;
       if (!isDisplayed(card)) return;
       const img = card.querySelector('.card-img, img');
       if (!img || !isDisplayed(img)) return;
