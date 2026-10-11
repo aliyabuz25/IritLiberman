@@ -212,7 +212,7 @@ if (i18nCount.c === 0) {
 
   const rows = [
     // nav
-    ['nav','experience',        'en','Selected Experience'],
+    ['nav','experience',        'en','Projects'],
     ['nav','experience',        'tr','Seçili Deneyimler'],
     ['nav','experience',        'de','Ausgewählte Projekte'],
     ['nav','capabilities',      'en','Capabilities'],
