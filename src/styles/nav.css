@@ -492,6 +492,16 @@
     gap: 6px;
   }
 
+  /* First nav-group label = "Selected Experience" → show "PROJECTS" on mobile */
+  .site-header .main-nav .nav-group:first-child > .nav-group-label {
+    font-size: 0;
+  }
+  .site-header .main-nav .nav-group:first-child > .nav-group-label::before {
+    content: 'PROJECTS';
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
   .site-header .main-nav .nav-group > .nav-group-label::after {
     content: '›';
     font-size: 1.1em;
