@@ -87,12 +87,16 @@ a {
   display: flex;
   max-width: 705px;
   margin-left: var(--page-gutter);
-  padding-top: 340px;
-  padding-bottom: 126px;
+  padding-top: 0;
+  padding-bottom: 0;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
   gap: 33px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
 }
 
 .hero h1,
@@ -434,9 +438,10 @@ a {
   .site-header.hero-header { padding: 18px var(--page-gutter); height: auto; min-height: 64px; flex-shrink: 0; border-bottom: none; }
   .hero-header .logo-sub { font-size: 8px; }
   .hero__image { object-position: center center; }
-  .hero__content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; max-width: none; width: auto; margin: 0 var(--page-gutter); padding-top: 0; padding-bottom: 48px; gap: 24px; }
+  .hero__content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: none; width: auto; margin: 0 var(--page-gutter); padding-top: 0; padding-bottom: 0; gap: 24px; }
   .hero h1 { font-size: 34px; line-height: 36px; letter-spacing: -1.1px; max-width: 342px; }
   .hero h1 em { margin-top: 4px; }
+  .hero-cta-desktop { display: none; }
   .hero__content .arrow-link { background: var(--merino); color: var(--ink); width: auto; align-self: flex-start; padding: 16px 20px 16px 22px; gap: 44px; font-size: 10px; letter-spacing: 2px; }
   .hero__content .arrow-link .arrow { font-size: 16px; line-height: 24px; }
   .hero__content .arrow-link:hover { opacity: 0.9; background: white; }
@@ -510,7 +515,7 @@ a {
         <span data-i18n="home|hero.title">The Right Stone Is Already Out There.</span>
         <em data-i18n="home|hero.subtitle">Let's Bring It Home.</em>
       </h1>
-      <a class="arrow-link" href="/contact">
+      <a class="arrow-link hero-cta-desktop" href="/contact">
         <span data-i18n="home|hero.cta">Discuss a Project</span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
