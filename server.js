@@ -809,6 +809,17 @@ async function main() {
       immutable: true
     }))
 
+    // Serve admin uploads from the writable source folder before built assets.
+    // Project uploads are stored in public/figma_images at runtime, while Vite
+    // serves the rest of the checked-in images from dist/figma_images.
+    app.use('/figma_images', express.static(uploadDir, {
+      etag: true,
+      lastModified: true,
+      setHeaders(res) {
+        res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate')
+      }
+    }))
+
     // Images: revalidate always so replaced images appear immediately
     app.use('/figma_images', express.static(resolve(distPath, 'figma_images'), {
       etag: true,
