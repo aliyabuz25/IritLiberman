@@ -1,0 +1,32 @@
+[
+  {
+    "id": 23,
+    "category": "stone-blocks",
+    "name": "Stone Blocks",
+    "sort_order": 22,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 78,
+        "project_id": 23,
+        "filename": "08321.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 79,
+        "project_id": 23,
+        "filename": "33301.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 80,
+        "project_id": 23,
+        "filename": "32fa4.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      }
+    ]
+  }
+]

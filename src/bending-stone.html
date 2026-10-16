@@ -19,15 +19,14 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
 .projects-section { width: 100%; padding: 0; }
 .projects-title-area { padding: 24px var(--page-gutter); display: flex; flex-direction: column; gap: 24px; }
 .projects-image-area { padding: 0 var(--page-gutter) 48px; display: flex; flex-direction: column; gap: 24px; }
-.projects-row { display: flex; flex-direction: row; align-items: stretch; gap: 24px; width: 100%; }
+.projects-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 24px; width: 100%; }
 .page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; }
 .page-intro { font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.55; color: #5d5448; max-width: 560px; }
-.stone-img { flex: 1 1 0; width: 0; max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 243; object-fit: cover; border: 1px solid #e4e4e4; display: block; min-width: 0; transition: transform 0.4s ease; cursor: pointer; }
+.stone-img { flex: 1 1 0; width: 100%; max-width: none; height: auto; aspect-ratio: 432 / 243; object-fit: cover; border: 1px solid #e4e4e4; display: block; min-width: 0; transition: transform 0.4s ease; cursor: pointer; }
 .stone-img:hover { transform: scale(1.02); }
 .stone-img--wide { flex: 0 1 auto; width: calc((100% - 48px) / 3); max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 203; }
-@media (max-width: 1440px) { .projects-row { flex-wrap: wrap; } }
-@media (max-width: 900px) { .projects-title-area { padding: 24px var(--page-gutter); } .projects-image-area { padding: 0 var(--page-gutter) 24px; } .stone-img { max-width: calc((100% - 24px) / 2); width: 0; } }
-@media (max-width: 767px) { .projects-title-area { padding: 20px var(--page-gutter); } .projects-image-area { padding: 0 var(--page-gutter) 32px; gap: 16px; } .projects-row { flex-direction: column; gap: 16px; } .stone-img { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 192; margin: 0; } .stone-img--wide { max-width: 100%; aspect-ratio: 342 / 162; } .page-title { font-size: 20px; } }
+@media (max-width: 900px) { .projects-title-area { padding: 24px var(--page-gutter); } .projects-image-area { padding: 0 var(--page-gutter) 24px; } .projects-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stone-img { max-width: none; width: 100%; } }
+@media (max-width: 767px) { .projects-title-area { padding: 20px var(--page-gutter); } .projects-image-area { padding: 0 var(--page-gutter) 32px; gap: 16px; } .projects-row { grid-template-columns: 1fr; gap: 16px; } .stone-img { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 192; margin: 0; } .stone-img--wide { max-width: 100%; aspect-ratio: 342 / 162; } .page-title { font-size: 20px; } }
 </style>
 </head>
 <body>
@@ -71,34 +70,10 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
     <p class="page-intro">Ultra-thin flexible stone for curves, columns, and surfaces where conventional slabs cannot follow the architecture.</p>
   </div>
   <div class="projects-image-area">
-    <div class="projects-row">
-      <img src="/figma_images/283b9.jpg" alt="1MM bending stone wrapping a curved surface" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/660f7.jpg" alt="1MM bending stone column cladding" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/ebe26.jpg" alt="1MM bending stone wall application" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-    </div>
-    <div class="projects-row">
-      <img src="/figma_images/63f0b.jpg" alt="Flexible stone sheet detail" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/c0f77.jpg" alt="1MM bending stone texture close-up" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/33301.jpg" alt="1MM bending stone installed on a radius" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-    </div>
-    <div class="projects-row">
-      <img src="/figma_images/1c524.jpg" alt="1MM bending stone interior feature" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/82214.jpg" alt="1MM bending stone facade detail" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-      <img src="/figma_images/32fa4.jpg" alt="1MM bending stone material sample" class="stone-img" loading="lazy" data-lightbox="bending-stone">
-    </div>
-    <div class="projects-row">
-      <img src="/figma_images/08321.jpg" alt="1MM bending stone wide installation view" class="stone-img stone-img--wide" loading="lazy" data-lightbox="bending-stone">
-    </div>
+    <div class="projects-row" data-dynamic-gallery data-gallery-category="bending-stone" data-gallery-layout="images" data-image-class="stone-img"></div>
   </div>
 </section>
 
-<section class="site-footer-cta" aria-label="Discuss a project">
-  <div class="site-footer-cta__copy">
-    <p class="site-footer-cta__label">Ready to Start?</p>
-    <p class="site-footer-cta__heading">Let's Find the Right <em>Material for Your Project.</em></p>
-  </div>
-  <a href="/contact" class="site-footer-cta__btn"><span>DISCUSS A PROJECT</span><span aria-hidden="true">→</span></a>
-</section>
 <script type="module" src="/js/gallery.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import express from 'express'
 import session from 'express-session'
 import bcrypt from 'bcryptjs'
 import multer from 'multer'
+import nodemailer from 'nodemailer'
 import fs from 'fs'
 import path from 'path'
 import compression from 'compression'
@@ -33,6 +34,61 @@ const upload = multer({ storage })
 function requireAuth(req, res, next) {
   if (req.session?.authenticated) return next()
   res.status(401).json({ error: 'Unauthorized' })
+}
+
+// SMTP settings (stored in the settings table)
+const SMTP_KEYS = ['smtp_enabled', 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_user', 'smtp_pass', 'smtp_from', 'smtp_to']
+
+function getSmtpSettings() {
+  const out = {}
+  for (const key of SMTP_KEYS) {
+    const row = queries.getSetting.get(key)
+    out[key] = row ? row.value : ''
+  }
+  return out
+}
+
+function buildTransport(cfg) {
+  const port = parseInt(cfg.smtp_port, 10) || 587
+  const secure = cfg.smtp_secure === '1' || cfg.smtp_secure === 'true'
+  return nodemailer.createTransport({
+    host: cfg.smtp_host,
+    port,
+    secure,
+    auth: cfg.smtp_user ? { user: cfg.smtp_user, pass: cfg.smtp_pass } : undefined,
+  })
+}
+
+async function sendContactEmail({ name, email, message }) {
+  const cfg = getSmtpSettings()
+  if (cfg.smtp_enabled !== '1' && cfg.smtp_enabled !== 'true') return { skipped: true }
+  if (!cfg.smtp_host || !cfg.smtp_from) return { skipped: true }
+
+  const transport = buildTransport(cfg)
+  const to = cfg.smtp_to || cfg.smtp_from
+
+  await transport.sendMail({
+    from: cfg.smtp_from,
+    to,
+    replyTo: email,
+    subject: `New project inquiry from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+    html: `<h2>New project inquiry</h2>
+      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+      <p><strong>Message:</strong></p>
+      <p style="white-space:pre-wrap">${escapeHtml(message)}</p>`,
+  })
+  return { sent: true }
+}
+
+function escapeHtml(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 async function main() {
@@ -161,6 +217,16 @@ async function main() {
   })
 
   // Projects API
+  // Public gallery data — project titles and images are managed in the admin.
+  app.get('/api/projects/:category', (req, res) => {
+    const projects = queries.getProjectsByCategory.all(req.params.category).map(project => ({
+      ...project,
+      images: queries.getProjectImages.all(project.id)
+    }))
+    res.set('Cache-Control', 'no-store')
+    res.json(projects)
+  })
+
   // GET all projects for a category
   app.get('/api/admin/projects', requireAuth, (req, res) => {
     const cat = req.query.category
@@ -182,6 +248,15 @@ async function main() {
     const sort = (maxSort.m || 0) + 1
     const { lastInsertRowid } = queries.insertProject.run(category, name.trim(), sort)
     res.json({ ok: true, id: lastInsertRowid })
+  })
+
+  // PATCH reorder projects (keep this before /:id so "reorder" is not read as an ID)
+  app.patch('/api/admin/projects/reorder', requireAuth, (req, res) => {
+    const { order } = req.body
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'order array required' })
+    const update = db.transaction(rows => rows.forEach(({ id, sort_order }) => queries.updateProjectSort.run(sort_order, id)))
+    update(order)
+    res.json({ ok: true })
   })
 
   // PATCH rename project
@@ -237,11 +312,18 @@ async function main() {
     res.json({ ok: true })
   })
 
-  // PATCH reorder projects
-  app.patch('/api/admin/projects/reorder', requireAuth, (req, res) => {
-    const { order } = req.body // array of {id, sort_order}
+  // PATCH reorder images within one project
+  app.patch('/api/admin/projects/:id/images/reorder', requireAuth, (req, res) => {
+    const { order } = req.body
     if (!Array.isArray(order)) return res.status(400).json({ error: 'order array required' })
-    order.forEach(({ id, sort_order }) => queries.updateProjectSort.run(sort_order, id))
+    const projectId = Number(req.params.id)
+    const images = queries.getProjectImages.all(projectId)
+    const allowed = new Set(images.map(image => image.id))
+    if (order.length !== images.length || order.some(id => !allowed.has(Number(id)))) {
+      return res.status(400).json({ error: 'order must contain every image in this project' })
+    }
+    const update = db.transaction(ids => ids.forEach((id, index) => queries.updateImageSort.run(index, id)))
+    update(order.map(Number))
     res.json({ ok: true })
   })
 
@@ -386,15 +468,44 @@ async function main() {
     res.json({ ok: true })
   })
 
-  app.post('/api/contact', (req, res) => {
+  app.post('/api/contact', async (req, res) => {
     const { name, email, message } = req.body
     if (!name || !email || !message) return res.status(400).json({ error: 'Eksik alan.' })
     queries.insertMessage.run(name, email, message)
-    res.json({ ok: true })
+
+    // Send notification email (non-blocking for the user; failure still keeps the message)
+    let mail = { sent: false }
+    try {
+      mail = await sendContactEmail({ name, email, message })
+    } catch (e) {
+      console.error('Contact email failed:', e.message)
+      mail = { sent: false, error: e.message }
+    }
+    res.json({ ok: true, emailed: !!mail.sent })
   })
 
   // i18n
+  app.get('/api/site/languages', (_req, res) => {
+    res.set('Cache-Control', 'no-store')
+    const languages = queries.getLangs.all().map(row => row.lang)
+    const setting = queries.getSetting.get('language_picker_enabled')
+    res.json({ enabled: setting?.value === '1', languages })
+  })
+
+  app.get('/api/admin/site-settings', requireAuth, (_req, res) => {
+    const setting = queries.getSetting.get('language_picker_enabled')
+    res.json({ language_picker_enabled: setting?.value === '1' })
+  })
+
+  app.put('/api/admin/site-settings', requireAuth, (req, res) => {
+    const enabled = req.body?.language_picker_enabled
+    if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'language_picker_enabled must be a boolean.' })
+    queries.setSetting.run('language_picker_enabled', enabled ? '1' : '0')
+    res.json({ ok: true })
+  })
+
   app.get('/api/i18n/:lang', (req, res) => {
+    res.set('Cache-Control', 'no-store')
     const rows = queries.getI18nByLang.all(req.params.lang)
     const out = {}
     rows.forEach(r => {
@@ -405,10 +516,12 @@ async function main() {
   })
 
   app.get('/api/i18n', (req, res) => {
+    res.set('Cache-Control', 'no-store')
     res.json(queries.getI18nAll.all())
   })
 
   app.get('/api/admin/i18n', requireAuth, (_req, res) => {
+    res.set('Cache-Control', 'no-store')
     const langs = queries.getLangs.all().map(r => r.lang)
     const all   = queries.getI18nAll.all()
 
@@ -419,13 +532,83 @@ async function main() {
       map[k][r.lang] = { value: r.value, id: r.id }
     })
 
-    res.json({ langs, rows: Object.values(map) })
+    const rows = Object.values(map)
+    res.json({ langs, rows, pages: [...new Set(rows.map(row => row.page))].sort() })
   })
 
   app.put('/api/admin/i18n', requireAuth, (req, res) => {
     const { page, key, lang, value } = req.body
-    if (!page || !key || !lang || value === undefined) return res.status(400).json({ error: 'Eksik alan.' })
+    if (typeof page !== 'string' || !/^[a-z0-9_-]+$/.test(page)
+      || typeof key !== 'string' || !/^[a-zA-Z0-9._-]+$/.test(key)
+      || typeof lang !== 'string' || !queries.getLangs.all().some(row => row.lang === lang)
+      || typeof value !== 'string' || value.length > 20000) {
+      return res.status(400).json({ error: 'Invalid page, key, language, or value.' })
+    }
     queries.upsert.run(page, key, lang, value)
+    res.json({ ok: true })
+  })
+
+  app.post('/api/admin/i18n/languages', requireAuth, (req, res) => {
+    const rawCode = typeof req.body.code === 'string' ? req.body.code.trim() : ''
+    if (!/^[a-zA-Z]{2,3}(?:-[a-zA-Z0-9]{2,8})*$/.test(rawCode)) {
+      return res.status(400).json({ error: 'Enter a valid language code, such as fr or pt-BR.' })
+    }
+    const code = rawCode.split('-').map((part, index) => index === 0 ? part.toLowerCase() : part.toUpperCase()).join('-')
+    if (queries.getLangs.all().some(row => row.lang.toLowerCase() === code.toLowerCase())) {
+      return res.status(409).json({ error: 'That language already exists.' })
+    }
+    const order = db.prepare('SELECT COALESCE(MAX(sort_order), -1) + 1 AS value FROM i18n_languages').get().value
+    const addLanguage = db.transaction(() => {
+      db.prepare('INSERT INTO i18n_languages (code, sort_order) VALUES (?, ?)').run(code, order)
+      db.prepare(`INSERT INTO i18n (page, key, lang, value)
+        SELECT page, key, ?, '' FROM (SELECT DISTINCT page, key FROM i18n)`).run(code)
+    })
+    addLanguage()
+    res.status(201).json({ ok: true, lang: code })
+  })
+
+  app.delete('/api/admin/i18n/languages/:lang', requireAuth, (req, res) => {
+    const lang = req.params.lang
+    const langs = queries.getLangs.all().map(row => row.lang)
+    if (!langs.includes(lang)) return res.status(404).json({ error: 'Language not found.' })
+    if (langs.length < 2) return res.status(400).json({ error: 'At least one language must remain.' })
+    const removeLanguage = db.transaction(() => {
+      db.prepare('DELETE FROM i18n WHERE lang=?').run(lang)
+      db.prepare('DELETE FROM i18n_languages WHERE code=?').run(lang)
+    })
+    removeLanguage()
+    res.json({ ok: true })
+  })
+
+  app.post('/api/admin/i18n/keys', requireAuth, (req, res) => {
+    const { page, key, values = {} } = req.body
+    if (typeof page !== 'string' || !/^[a-z0-9_-]+$/.test(page)
+      || typeof key !== 'string' || !/^[a-zA-Z0-9._-]+$/.test(key)) {
+      return res.status(400).json({ error: 'Page and key may contain letters, numbers, dots, underscores, and hyphens.' })
+    }
+    if (db.prepare('SELECT 1 FROM i18n WHERE page=? AND key=? LIMIT 1').get(page, key)) {
+      return res.status(409).json({ error: 'That content key already exists.' })
+    }
+    const langs = queries.getLangs.all().map(row => row.lang)
+    if (!langs.length) return res.status(400).json({ error: 'Add a language before adding content keys.' })
+    if (!values || typeof values !== 'object' || Array.isArray(values)
+      || Object.values(values).some(value => typeof value !== 'string' || value.length > 20000)) {
+      return res.status(400).json({ error: 'Translation values must be text.' })
+    }
+    const addKey = db.transaction(() => {
+      langs.forEach(lang => queries.upsert.run(page, key, lang, values[lang] || ''))
+    })
+    addKey()
+    res.status(201).json({ ok: true })
+  })
+
+  app.delete('/api/admin/i18n/keys', requireAuth, (req, res) => {
+    const { page, key } = req.body
+    if (typeof page !== 'string' || typeof key !== 'string') {
+      return res.status(400).json({ error: 'Page and key are required.' })
+    }
+    const result = db.prepare('DELETE FROM i18n WHERE page=? AND key=?').run(page, key)
+    if (!result.changes) return res.status(404).json({ error: 'Content key not found.' })
     res.json({ ok: true })
   })
 
@@ -494,6 +677,52 @@ async function main() {
     res.setHeader('Content-Type', 'text/csv')
     res.setHeader('Content-Disposition', 'attachment; filename="messages.csv"')
     res.send(csv)
+  })
+
+  // SMTP settings
+  app.get('/api/admin/smtp', requireAuth, (_req, res) => {
+    const cfg = getSmtpSettings()
+    const hasPass = !!cfg.smtp_pass
+    delete cfg.smtp_pass
+    res.json({ ...cfg, smtp_pass_set: hasPass })
+  })
+
+  app.put('/api/admin/smtp', requireAuth, (req, res) => {
+    const { smtp_enabled, smtp_host, smtp_port, smtp_secure, smtp_user, smtp_pass, smtp_from, smtp_to } = req.body
+    const values = { smtp_enabled, smtp_host, smtp_port, smtp_secure, smtp_user, smtp_from, smtp_to }
+    for (const [key, val] of Object.entries(values)) {
+      if (val !== undefined) queries.setSetting.run(key, String(val))
+    }
+    // Only update the password when a new one is provided
+    if (smtp_pass !== undefined && smtp_pass !== '') {
+      queries.setSetting.run('smtp_pass', String(smtp_pass))
+    } else if (req.body.smtp_pass_clear) {
+      queries.setSetting.run('smtp_pass', '')
+    }
+    res.json({ ok: true })
+  })
+
+  app.post('/api/admin/smtp/test', requireAuth, async (req, res) => {
+    const cfg = getSmtpSettings()
+    const testTo = (req.body && req.body.to) || cfg.smtp_to || cfg.smtp_from
+    if (!cfg.smtp_host || !cfg.smtp_from) {
+      return res.status(400).json({ error: 'SMTP host and From address are required.' })
+    }
+    if (!testTo) return res.status(400).json({ error: 'No recipient specified.' })
+    try {
+      const transport = buildTransport(cfg)
+      await transport.verify()
+      await transport.sendMail({
+        from: cfg.smtp_from,
+        to: testTo,
+        subject: 'Irit Liberman — SMTP test',
+        text: 'This is a test email from your website admin panel. SMTP is configured correctly.',
+        html: '<p>This is a test email from your website admin panel. <strong>SMTP is configured correctly.</strong></p>',
+      })
+      res.json({ ok: true, to: testTo })
+    } catch (e) {
+      res.status(500).json({ error: e.message })
+    }
   })
 
   // SEO

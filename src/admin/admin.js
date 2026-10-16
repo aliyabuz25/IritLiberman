@@ -363,6 +363,9 @@ let i18nRows = []
 let i18nLangs = []
 let i18nFilter = ''
 let i18nActivePage = null
+const i18nDrafts = new Map()
+
+const i18nDraftId = (page, key, lang) => JSON.stringify([page, key, lang])
 
 async function loadI18n() {
   const sidebar = document.getElementById('i18n-sidebar')
@@ -370,9 +373,18 @@ async function loadI18n() {
   sidebar.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>'
   content.innerHTML = ''
 
-  const data = await fetch('/api/admin/i18n').then(r => r.json()).catch(() => ({ langs: [], rows: [] }))
-  i18nLangs = data.langs
-  i18nRows  = data.rows
+  try {
+    const response = await fetch('/api/admin/i18n')
+    if (!response.ok) throw new Error(`Request failed (${response.status})`)
+    const data = await response.json()
+    i18nLangs = Array.isArray(data.langs) ? data.langs : []
+    i18nRows = Array.isArray(data.rows) ? data.rows : []
+  } catch (error) {
+    sidebar.innerHTML = '<div class="text-center text-danger p-4">Could not load localization data. Check your connection and reload.</div>'
+    content.innerHTML = ''
+    toast('Could not load localization data.', 'error')
+    return
+  }
   
   if (!i18nActivePage && i18nRows.length > 0) {
     i18nActivePage = i18nRows[0].page
@@ -456,13 +468,16 @@ function renderI18nView() {
     })
   } else {
     const rows = byPage[i18nActivePage] || []
-    content.innerHTML = `<h4 class="mb-4 text-capitalize border-bottom pb-2">${i18nActivePage}</h4>` + rows.map(r => {
+    content.innerHTML = `<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="text-capitalize mb-0">${esc(i18nActivePage)}</h4>
+        <span class="text-muted small">${rows.length} content key${rows.length === 1 ? '' : 's'}</span>
+      </div>` + (rows.length ? rows.map(r => {
       const inputsHtml = i18nLangs.map(l => `
-        <div class="col-md-${Math.max(12/i18nLangs.length, 4)}">
+        <div class="col-12 col-xl-4 mb-3">
           <label class="text-muted text-uppercase" style="font-size:12px;">${l}</label>
-          <textarea class="form-control i18n-input" rows="3"
-            data-page="${esc(r.page)}" data-key="${esc(r.key)}" data-lang="${l}" 
-            oninput="onCellChange(this)">${esc(r[l]?.value || '')}</textarea>
+          <textarea class="form-control i18n-input ${i18nDrafts.has(i18nDraftId(r.page, r.key, l)) ? 'changed' : ''}" rows="3"
+            data-page="${esc(r.page)}" data-key="${esc(r.key)}" data-lang="${esc(l)}"
+            oninput="onCellChange(this)">${esc(i18nDrafts.get(i18nDraftId(r.page, r.key, l)) ?? r[l]?.value ?? '')}</textarea>
         </div>
       `).join('')
 
@@ -470,13 +485,14 @@ function renderI18nView() {
         <div class="card mb-4 shadow-sm">
           <div class="card-header bg-light p-2 px-3 border-bottom-0">
             <span class="key-code"><i class="fas fa-font text-muted mr-1"></i> ${esc(r.key)}</span>
+          <button class="btn btn-xs btn-outline-danger float-right" onclick="deleteI18nKey('${esc(r.page)}','${esc(r.key)}')" title="Delete this key"><i class="fas fa-trash"></i></button>
           </div>
           <div class="card-body p-3">
             <div class="row">${inputsHtml}</div>
           </div>
         </div>
       `
-    }).join('')
+    }).join('') : '<div class="text-muted py-4">No content keys on this page yet. Use “Add Content Key” to create one.</div>')
   }
 }
 
@@ -537,30 +553,126 @@ window.setI18nPage = setI18nPage
 
 function onCellChange(el) {
   el.classList.add('changed')
+  i18nDrafts.set(i18nDraftId(el.dataset.page, el.dataset.key, el.dataset.lang), el.value)
 }
 window.onCellChange = onCellChange
 
 async function saveAllChanged() {
-  const inputs = document.querySelectorAll('.i18n-input.changed')
-  if (!inputs.length) { toast('No changes to save.', 'warning'); return }
-  
+  if (!i18nDrafts.size) { toast('No changes to save.', 'warning'); return }
+  const button = document.querySelector('#sec-localization button[onclick="saveAllChanged()"]')
+  if (button) { button.disabled = true; button.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Saving…' }
   try {
-    await Promise.all([...inputs].map(inp =>
-      fetch('/api/admin/i18n', {
+    const responses = await Promise.all([...i18nDrafts.entries()].map(([draftId, value]) => {
+      const [page, key, lang] = JSON.parse(draftId)
+      return fetch('/api/admin/i18n', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: inp.dataset.page, key: inp.dataset.key, lang: inp.dataset.lang, value: inp.value })
+        body: JSON.stringify({ page, key, lang, value })
       })
-    ))
-    inputs.forEach(i => i.classList.remove('changed'))
-    toast(`Successfully saved ${inputs.length} translation(s).`)
-    const updated = await fetch('/api/admin/i18n').then(r => r.json()).catch(() => null)
-    if (updated) { i18nLangs = updated.langs; i18nRows = updated.rows }
+    }))
+    const failed = responses.find(response => !response.ok)
+    if (failed) {
+      let error = `Save failed (${failed.status}).`
+      try { error = (await failed.json()).error || error } catch {}
+      throw new Error(error)
+    }
+    const savedCount = i18nDrafts.size
+    const activeElement = document.activeElement
+    i18nDrafts.clear()
+    toast(`Successfully saved ${savedCount} translation(s).`)
+    await loadI18n()
+    if (activeElement?.matches?.('.i18n-input')) {
+      const selector = `.i18n-input[data-page="${CSS.escape(activeElement.dataset.page)}"][data-key="${CSS.escape(activeElement.dataset.key)}"][data-lang="${CSS.escape(activeElement.dataset.lang)}"]`
+      document.querySelector(selector)?.focus()
+    }
   } catch (err) {
-    toast('Error saving translations.', 'error')
+    toast(err.message || 'Error saving translations. Unsaved fields are still marked.', 'error')
+  } finally {
+    if (button) { button.disabled = false; button.innerHTML = '<i class="fas fa-save"></i> Save All Changes' }
   }
 }
 window.saveAllChanged = saveAllChanged
+
+async function addI18nLanguage() {
+  const raw = prompt('Language code (examples: fr, es, pt-BR):')
+  if (!raw?.trim()) return
+  try {
+    const response = await fetch('/api/admin/i18n/languages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: raw.trim() })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not add language.')
+    toast(`Language ${data.lang} added.`)
+    await loadI18n()
+  } catch (error) { toast(error.message || 'Could not add language.', 'error') }
+}
+window.addI18nLanguage = addI18nLanguage
+
+async function removeI18nLanguage() {
+  if (i18nLangs.length < 2) { toast('At least one language must remain.', 'warning'); return }
+  const lang = prompt(`Enter the language code to remove (${i18nLangs.join(', ')}):`)
+  if (!lang?.trim()) return
+  const code = i18nLangs.find(item => item.toLowerCase() === lang.trim().toLowerCase())
+  if (!code) { toast('That language was not found.', 'error'); return }
+  if ([...i18nDrafts.keys()].some(draftId => JSON.parse(draftId)[2] === code)) {
+    toast('Save or discard this language’s unsaved translations before removing it.', 'warning')
+    return
+  }
+  if (!confirm(`Remove ${code} and all of its translations? This cannot be undone.`)) return
+  try {
+    const response = await fetch(`/api/admin/i18n/languages/${encodeURIComponent(code)}`, { method: 'DELETE' })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not remove language.')
+    toast(`Language ${code} removed.`)
+    await loadI18n()
+  } catch (error) { toast(error.message || 'Could not remove language.', 'error') }
+}
+window.removeI18nLanguage = removeI18nLanguage
+
+async function addI18nKey() {
+  const page = (prompt('Page identifier (examples: home, about, custom-homes):', i18nActivePage && i18nActivePage !== 'media_library' ? i18nActivePage : '') || '').trim()
+  if (!page) return
+  const key = (prompt('Content key (examples: hero.title, footer.cta):') || '').trim()
+  if (!key) return
+  try {
+    const response = await fetch('/api/admin/i18n/keys', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page, key, values: {} })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not add content key.')
+    i18nActivePage = page
+    i18nFilter = ''
+    const search = document.getElementById('i18n-search')
+    if (search) search.value = ''
+    toast('Content key added. Enter its translations and save.')
+    await loadI18n()
+  } catch (error) { toast(error.message || 'Could not add content key.', 'error') }
+}
+window.addI18nKey = addI18nKey
+
+async function deleteI18nKey(page, key) {
+  if ([...i18nDrafts.keys()].some(draftId => {
+    const [draftPage, draftKey] = JSON.parse(draftId)
+    return draftPage === page && draftKey === key
+  })) {
+    toast('Save this key’s unsaved translations before deleting it.', 'warning')
+    return
+  }
+  if (!confirm(`Delete “${page}.${key}” and all its translations? This cannot be undone.`)) return
+  try {
+    const response = await fetch('/api/admin/i18n/keys', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page, key })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not delete content key.')
+    toast('Content key deleted.')
+    await loadI18n()
+  } catch (error) { toast(error.message || 'Could not delete content key.', 'error') }
+}
+window.deleteI18nKey = deleteI18nKey
 
 document.getElementById('i18n-search')?.addEventListener('input', e => {
   i18nFilter = e.target.value.trim()
@@ -846,12 +958,14 @@ function renderProjectGroups(projects, grid, cat) {
     <div class="col-12 mb-3 d-flex justify-content-end">
       <button class="btn btn-sm btn-primary" onclick="createProject('${esc(cat)}')">+ New Project</button>
     </div>
-    ${projects.map(proj => `
+    ${projects.map((proj, projectIndex) => `
       <div class="col-12 mb-4" id="proj-group-${proj.id}">
         <div class="card" style="border:1px solid #e8e2d9;">
           <div class="card-header d-flex align-items-center justify-content-between" style="background:#fbf9f4;padding:10px 16px;">
             <div class="d-flex align-items-center" style="gap:8px;flex:1;">
               <span id="proj-name-label-${proj.id}" style="font-weight:700;font-size:.9rem;color:#201b17;">${esc(proj.name)}</span>
+              ${projectIndex > 0 ? `<button onclick="moveProject(${proj.id},-1)" class="btn btn-xs btn-light" title="Move project earlier">↑</button>` : ''}
+              ${projectIndex < projects.length - 1 ? `<button onclick="moveProject(${proj.id},1)" class="btn btn-xs btn-light" title="Move project later">↓</button>` : ''}
               <button onclick="renameProject(${proj.id})" class="btn btn-xs btn-default" style="font-size:.72rem;padding:2px 8px;">Rename</button>
             </div>
             <div class="d-flex" style="gap:6px;">
@@ -861,7 +975,7 @@ function renderProjectGroups(projects, grid, cat) {
           </div>
           <div class="card-body p-3">
             <div class="row g-2" id="proj-imgs-${proj.id}">
-              ${proj.images.map(img => renderProjectImageCard(proj.id, img)).join('')}
+              ${proj.images.map((img, index) => renderProjectImageCard(proj.id, img, index, proj.images.length)).join('')}
               <div class="col-md-2 col-sm-4 col-6">
                 <label class="d-flex flex-column align-items-center justify-content-center"
                   style="aspect-ratio:1;border:2px dashed #d4ccc4;border-radius:8px;cursor:pointer;color:#84796d;font-size:.75rem;background:#fbf9f4;transition:background .15s;">
@@ -878,7 +992,7 @@ function renderProjectGroups(projects, grid, cat) {
   `
 }
 
-function renderProjectImageCard(projId, img) {
+function renderProjectImageCard(projId, img, index, count) {
   const isLand = img.is_landing === 1
   return `
     <div class="col-md-2 col-sm-4 col-6" id="proj-img-card-${img.id}">
@@ -888,6 +1002,8 @@ function renderProjectImageCard(projId, img) {
           onerror="this.style.opacity='.2'">
         ${isLand ? '<span style="position:absolute;top:4px;left:4px;background:#201b17;color:#fbf9f4;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.06em;">LAND</span>' : ''}
         <div style="position:absolute;top:4px;right:4px;display:flex;gap:3px;">
+          ${index > 0 ? `<button onclick="moveProjectImage(${projId},${index},-1)" class="btn btn-xs btn-light" style="padding:2px 5px;font-size:.6rem;" title="Move earlier">↑</button>` : ''}
+          ${index < count - 1 ? `<button onclick="moveProjectImage(${projId},${index},1)" class="btn btn-xs btn-light" style="padding:2px 5px;font-size:.6rem;" title="Move later">↓</button>` : ''}
           ${!isLand ? `<button onclick="setProjectLanding(${projId},${img.id})" class="btn btn-xs" style="background:rgba(32,27,23,.7);color:#fff;padding:2px 5px;font-size:.6rem;border:none;" title="Set as landing">★</button>` : ''}
           <button onclick="removeProjectImage(${projId},${img.id},'${esc(img.filename)}')" class="btn btn-xs btn-danger" style="padding:2px 5px;font-size:.6rem;" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
@@ -935,6 +1051,24 @@ async function deleteProject(id, name) {
 }
 window.deleteProject = deleteProject
 
+async function moveProject(projectId, direction) {
+  const category = document.getElementById('proj-category-filter')?.value || 'custom-homes'
+  const projects = await fetch(`/api/admin/projects?category=${encodeURIComponent(category)}`).then(response => response.json())
+  const index = projects.findIndex(project => project.id === projectId)
+  const target = index + direction
+  if (index < 0 || target < 0 || target >= projects.length) return
+  ;[projects[index], projects[target]] = [projects[target], projects[index]]
+  const order = projects.map((project, sort_order) => ({ id: project.id, sort_order }))
+  const response = await fetch('/api/admin/projects/reorder', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order })
+  })
+  if (response.ok) loadProjectImages()
+  else toast('Could not reorder projects.', 'error')
+}
+window.moveProject = moveProject
+
 async function addProjectImage(input, projId) {
   if (!input.files[0]) return
   const label = input.closest('label')
@@ -975,6 +1109,25 @@ async function setProjectLanding(projId, imgId) {
   else { const d = await res.json(); toast(d.error || 'Error', 'error') }
 }
 window.setProjectLanding = setProjectLanding
+
+async function moveProjectImage(projectId, index, direction) {
+  const category = document.getElementById('proj-category-filter')?.value || 'custom-homes'
+  const projects = await fetch(`/api/admin/projects?category=${encodeURIComponent(category)}`).then(response => response.json())
+  const project = projects.find(item => item.id === projectId)
+  if (!project) return
+  const order = project.images.map(image => image.id)
+  const target = index + direction
+  if (target < 0 || target >= order.length) return
+  ;[order[index], order[target]] = [order[target], order[index]]
+  const response = await fetch(`/api/admin/projects/${projectId}/images/reorder`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order })
+  })
+  if (response.ok) loadProjectImages()
+  else toast('Could not reorder images.', 'error')
+}
+window.moveProjectImage = moveProjectImage
 
 // SEO
 const SEO_PAGES = {
@@ -1276,7 +1429,11 @@ async function loadSettings() {
   if (!el) return
   el.innerHTML = '<div class="text-center text-muted p-4"><i class="fas fa-sync-alt fa-spin"></i> Loading...</div>'
   try {
-    const sys = await fetch('/api/admin/system').then(r => r.json())
+    const [sys, smtp, siteSettings] = await Promise.all([
+      fetch('/api/admin/system').then(r => r.json()),
+      fetch('/api/admin/smtp').then(r => r.json()).catch(() => ({})),
+      fetch('/api/admin/site-settings').then(r => r.json()).catch(() => ({}))
+    ])
     const uptime = (() => {
       const s = Math.floor(sys.uptime)
       const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60
@@ -1285,6 +1442,18 @@ async function loadSettings() {
     const dbMB = (sys.dbSizeBytes / 1048576).toFixed(2)
 
     el.innerHTML = `
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-2"><span class="key-code"><i class="fas fa-language text-muted mr-1"></i> Language Picker</span></div>
+        <div class="card-body">
+          <p class="text-muted mb-3" style="font-size:.875rem;">Show a custom language menu in public page headers. Languages are managed in Localization; the menu appears when at least two languages are available.</p>
+          <div id="language-picker-alert"></div>
+          <div class="custom-control custom-switch mb-3">
+            <input type="checkbox" class="custom-control-input" id="language_picker_enabled" ${siteSettings.language_picker_enabled ? 'checked' : ''}>
+            <label class="custom-control-label" for="language_picker_enabled">Show language picker on the website</label>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" onclick="saveLanguagePickerSetting()"><i class="fas fa-save mr-1"></i> Save Setting</button>
+        </div>
+      </div>
       <div class="row">
         <div class="col-md-6">
           <div class="card shadow-sm mb-4">
@@ -1322,12 +1491,172 @@ async function loadSettings() {
           </div>
         </div>
       </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+          <span class="key-code"><i class="fas fa-envelope text-muted mr-1"></i> Email / SMTP</span>
+          <span class="badge ${smtp.smtp_enabled === '1' || smtp.smtp_enabled === 'true' ? 'badge-success' : 'badge-secondary'}">
+            ${smtp.smtp_enabled === '1' || smtp.smtp_enabled === 'true' ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="text-muted" style="font-size:.875rem;">When enabled, contact form submissions are also emailed to the address below. Messages are always saved to the Inbox regardless.</p>
+          <div id="smtp-alert"></div>
+          <form id="smtp-form" onsubmit="return false;">
+            <div class="form-group">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="smtp_enabled" ${smtp.smtp_enabled === '1' || smtp.smtp_enabled === 'true' ? 'checked' : ''}>
+                <label class="custom-control-label" for="smtp_enabled">Send email notifications for new inquiries</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">SMTP Host</label>
+                  <input type="text" class="form-control form-control-sm" id="smtp_host" placeholder="smtp.gmail.com" value="${esc(smtp.smtp_host || '')}">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">Port</label>
+                  <input type="number" class="form-control form-control-sm" id="smtp_port" placeholder="587" value="${esc(smtp.smtp_port || '')}">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="smtp_secure" ${smtp.smtp_secure === '1' || smtp.smtp_secure === 'true' ? 'checked' : ''}>
+                <label class="custom-control-label" for="smtp_secure">Use SSL/TLS (secure). Leave off for STARTTLS on port 587.</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">Username</label>
+                  <input type="text" class="form-control form-control-sm" id="smtp_user" placeholder="you@example.com" autocomplete="off" value="${esc(smtp.smtp_user || '')}">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">Password</label>
+                  <input type="password" class="form-control form-control-sm" id="smtp_pass" placeholder="${smtp.smtp_pass_set ? '•••••••• (saved — leave blank to keep)' : 'App password'}" autocomplete="new-password">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">From Address</label>
+                  <input type="email" class="form-control form-control-sm" id="smtp_from" placeholder="notifications@yourdomain.com" value="${esc(smtp.smtp_from || '')}">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label style="font-weight:600;font-size:.8rem;color:#555;">Send inquiries to</label>
+                  <input type="email" class="form-control form-control-sm" id="smtp_to" placeholder="irit@eskandaristone.com" value="${esc(smtp.smtp_to || '')}">
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm btn-primary" onclick="saveSmtp()"><i class="fas fa-save mr-1"></i> Save Settings</button>
+              <button type="button" class="btn btn-sm btn-default" onclick="testSmtp()"><i class="fas fa-paper-plane mr-1"></i> Send Test Email</button>
+            </div>
+          </form>
+        </div>
+      </div>
     `
   } catch {
     el.innerHTML = '<div class="alert alert-danger">Failed to load system info.</div>'
   }
 }
 window.loadSettings = loadSettings
+
+function readSmtpForm() {
+  return {
+    smtp_enabled: document.getElementById('smtp_enabled').checked ? '1' : '0',
+    smtp_host: document.getElementById('smtp_host').value.trim(),
+    smtp_port: document.getElementById('smtp_port').value.trim(),
+    smtp_secure: document.getElementById('smtp_secure').checked ? '1' : '0',
+    smtp_user: document.getElementById('smtp_user').value.trim(),
+    smtp_pass: document.getElementById('smtp_pass').value,
+    smtp_from: document.getElementById('smtp_from').value.trim(),
+    smtp_to: document.getElementById('smtp_to').value.trim(),
+  }
+}
+
+function smtpAlert(msg, type) {
+  const el = document.getElementById('smtp-alert')
+  if (!el) return
+  el.innerHTML = `<div class="alert alert-${type} py-2" style="font-size:.85rem;">${esc(msg)}</div>`
+}
+
+async function saveSmtp() {
+  smtpAlert('', 'info')
+  try {
+    const res = await fetch('/api/admin/smtp', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(readSmtpForm())
+    })
+    const data = await res.json()
+    if (res.ok) {
+      smtpAlert('Settings saved.', 'success')
+      loadSettings()
+    } else {
+      smtpAlert(data.error || 'Failed to save settings.', 'danger')
+    }
+  } catch {
+    smtpAlert('Network error.', 'danger')
+  }
+}
+window.saveSmtp = saveSmtp
+
+async function saveLanguagePickerSetting() {
+  const alert = document.getElementById('language-picker-alert')
+  if (!alert) return
+  try {
+    const response = await fetch('/api/admin/site-settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language_picker_enabled: document.getElementById('language_picker_enabled').checked })
+    })
+    const data = await response.json().catch(() => ({}))
+    let message = 'Language picker setting saved.'
+    if (!response.ok) {
+      message = response.status === 401
+        ? 'Admin session expired. Sign in again and retry.'
+        : response.status === 404
+          ? 'Language settings API is missing. Restart the app or redeploy the latest backend.'
+          : data.error || `Could not save setting (HTTP ${response.status}).`
+    }
+    alert.innerHTML = `<div class="alert alert-${response.ok ? 'success' : 'danger'} py-2" style="font-size:.85rem;">${esc(message)}</div>`
+  } catch {
+    alert.innerHTML = '<div class="alert alert-danger py-2" style="font-size:.85rem;">Could not reach the admin API. Restart the app or redeploy the latest backend, then sign in again.</div>'
+  }
+}
+window.saveLanguagePickerSetting = saveLanguagePickerSetting
+
+async function testSmtp() {
+  const cfg = readSmtpForm()
+  const to = cfg.smtp_to || cfg.smtp_from
+  smtpAlert('Sending test email' + (to ? ' to ' + to : '') + '...', 'info')
+  try {
+    const res = await fetch('/api/admin/smtp/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      smtpAlert('Test email sent successfully.', 'success')
+    } else {
+      smtpAlert(data.error || 'Test failed.', 'danger')
+    }
+  } catch {
+    smtpAlert('Network error.', 'danger')
+  }
+}
+window.testSmtp = testSmtp
 
 async function loadPages() {
   const list = document.getElementById('pages-list')

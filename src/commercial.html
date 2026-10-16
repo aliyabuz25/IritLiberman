@@ -17,12 +17,10 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #201b17; font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.projects-section { width: 100%; padding: var(--page-gutter); }
-.projects-row-groups { display: flex; flex-direction: column; gap: 60px; }
-.projects-group { display: flex; flex-direction: column; gap: 35px; }
-.projects-row { display: flex; flex-direction: row; align-items: center; gap: 24px; width: 100%; }
-.page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; }
-.project-card { position: relative; flex: 1 1 0; width: 0; max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 520; border-radius: 4px; overflow: hidden; min-width: 0; cursor: pointer; }
+.projects-section { width: 100%; padding: var(--page-gutter); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 60px 24px; }
+.projects-row-groups, .projects-group, .projects-row { display: contents; }
+.page-title { grid-column: 1 / -1; font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; margin-bottom: -25px; }
+.project-card { position: relative; flex: 0 1 calc((100% - 48px) / 3); width: 100%; min-width: 0; max-width: none; height: auto; aspect-ratio: 432 / 520; border-radius: 4px; overflow: hidden; cursor: pointer; }
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; z-index: 1; transition: transform 0.4s ease; }
 .project-card:hover .card-img { transform: scale(1.02); }
 .card-body { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 28px 12px 12px; border-radius: 0 0 4px 4px; background: linear-gradient(180deg, rgb(32 27 23 / 0%) 0%, rgb(32 27 23 / 55%) 45%, rgb(32 27 23 / 82%) 100%); }
@@ -33,14 +31,12 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
 .project-card--label:hover .card-img { transform: none; }
 .project-card--label .card-arrow { opacity: 0.35; }
 .project-card--label .card-body { position: relative; inset: auto; width: 100%; height: 100%; align-items: flex-end; border-radius: 4px; }
-@media (max-width: 1440px) { .projects-row { flex-wrap: wrap; } }
-@media (max-width: 900px) { .projects-section { padding: var(--page-gutter); } .project-card { max-width: calc((100% - 24px) / 2); width: 0; } }
+@media (max-width: 900px) { .projects-section { padding: var(--page-gutter); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; } .project-card { max-width: none; width: 100%; } }
 @media (max-width: 767px) {
-  .projects-section { padding: 20px var(--page-gutter) 32px; }
-  .projects-row-groups { gap: 20px; } .projects-group { gap: 20px; }
-  .projects-row { flex-direction: column; gap: 20px; align-items: stretch; }
+  .projects-section { padding: 20px var(--page-gutter) 32px; grid-template-columns: 1fr; gap: 20px; }
+  .projects-row { gap: 20px; align-items: stretch; justify-content: flex-start; }
   .project-card { width: 100%; max-width: 100%; flex: 1 1 auto; height: auto; aspect-ratio: 342 / 412; margin: 0; }
-  .page-title { font-size: 20px; }
+  .page-title { font-size: 20px; margin-bottom: 20px; }
   .card-title { font-size: 10px; font-weight: 600; white-space: normal; text-overflow: clip; }
   .project-card--label, .project-card--mobile-hide { display: none; }
   .project-card--mobile-only { display: block; }
@@ -83,90 +79,11 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
   </div>
 </header>
 
-<section class="projects-section">
-  <div class="projects-row-groups">
-    <div class="projects-group">
-<h1 class="page-title">COMMERCIAL</h1>
-       <div class="projects-row">
-<div class="project-card" data-lightbox="commercial">
-            <img src="/figma_images/6f440.jpg" alt="Santa Monica" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-            <div class="card-body card-body--dark">
-              <h2 class="card-title" data-i18n="commercial|project.santa-monica">SANTA MONICA</h2>
-              <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            </div>
-          </div>
-         <div class="project-card" data-lightbox="commercial">
-           <img src="/figma_images/5b9aa.jpg" alt="Kurve on Wilshire" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.kurve-wilshire">KURVE ON WILSHIRE</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="commercial">
-           <img src="/figma_images/8ab23.jpg" alt="Skyview Sunset Boulevard" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.skyview-sunset">SKYVIEW SUNSET BOULEVARD</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-     <div class="projects-group">
-       <div class="projects-row">
-         <div class="project-card" data-lightbox="commercial" data-extra="/figma_images/comm-dtla-888.jpg,/figma_images/comm-dtla-ext.jpg">
-           <img src="/figma_images/comm-dtla-gh.jpg" alt="DTLA" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.dtla">DTLA (DOWNTOWN LOS ANGELES)</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="commercial">
-           <img src="/figma_images/21ba2.jpg" alt="Circa DTLA" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.circa-dtla">CIRCA DTLA</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="commercial">
-           <img src="/figma_images/f24af.jpg" alt="AKA on Sunset Blvd" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.aka-sunset">AKA ON SUNSET BLVD</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-     <div class="projects-group">
-       <div class="projects-row">
-         <div class="project-card" data-lightbox="commercial" data-extra="/figma_images/e05b0.jpg,/figma_images/comm-oceanwide-graffiti.jpg">
-           <img src="/figma_images/comm-oceanwide-pic3.jpg" alt="Oceanwide Plaza" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.oceanwide-plaza">OCEANWIDE PLAZA</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="commercial">
-           <img src="/figma_images/b22ac.jpg" alt="The Harland WeHo" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="commercial|project.harland-weho">THE HARLAND WEHO</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-  </div>
+<section class="projects-section" data-gallery-category="commercial" data-gallery-layout="projects">
+  <h1 class="page-title">COMMERCIAL</h1>
+  <div class="projects-row" data-dynamic-gallery data-gallery-category="commercial" data-gallery-layout="projects"></div>
 </section>
 
-<section class="site-footer-cta" aria-label="Discuss a project">
-  <div class="site-footer-cta__copy">
-    <p class="site-footer-cta__label">Ready to Start?</p>
-    <p class="site-footer-cta__heading">Let's Find the Right <em>Material for Your Project.</em></p>
-  </div>
-  <a href="/contact" class="site-footer-cta__btn">
-    <span>DISCUSS A PROJECT</span>
-    <span aria-hidden="true">→</span>
-  </a>
-</section>
 <script type="module" src="/js/gallery.js"></script>
 </body>
 </html>

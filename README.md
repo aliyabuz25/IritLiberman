@@ -6,11 +6,11 @@ Portfolio website for Irit Liberman — global material sourcing & procurement f
 
 ## About
 
-Irit Liberman is a global material sourcing and procurement specialist based in Los Angeles. The site showcases 20 projects across three categories:
+Irit Liberman is a global material sourcing and procurement specialist based in Los Angeles. The site showcases 18 projects across three categories:
 
-- **Custom Homes** — 7 projects (The Bird Street, The Bird Street 2, The Bird Street 3, Beverly Hills, Pacific Palisades, Santa Monica, Pasadena)
+- **Custom Homes** — 6 projects (The Bird Street, The Bird Street 2, The Bird Street 3, Beverly Hills, Pacific Palisades, Pasadena)
 - **Hospitality** — 5 projects (Bottega Louie WeHo, 1 Hotel WeHo, Edition WeHo, Pendry WeHo, Regent Hotel Santa Monica)
-- **Commercial** — 8 projects (Santa Monica, Kurve on Wilshire, Skyview Sunset Blvd, DTLA, Circa DTLA, AKA on Sunset Blvd, Oceanwide Plaza, The Harland WeHo)
+- **Commercial** — 7 projects (Kurve on Wilshire, Skyview Sunset Blvd, DTLA, Circa DTLA, AKA on Sunset Blvd, Oceanwide Plaza, The Harland WeHo)
 
 ## Stack
 

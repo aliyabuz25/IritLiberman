@@ -18,11 +18,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #201b17; font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 .projects-section { width: 100%; padding: var(--page-gutter); }
-.projects-row-groups { display: flex; flex-direction: column; gap: 60px; }
-.projects-group { display: flex; flex-direction: column; gap: 35px; }
-.projects-row { display: flex; flex-direction: row; align-items: center; gap: 24px; width: 100%; }
-.page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; letter-spacing: 0; }
-.project-card { position: relative; flex: 1 1 0; width: 0; max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 520; border-radius: 4px; overflow: hidden; min-width: 0; cursor: pointer; }
+.projects-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 60px 24px; width: 100%; }
+.page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; letter-spacing: 0; margin-bottom: 35px; }
+.project-card { position: relative; flex: 0 1 calc((100% - 48px) / 3); width: 100%; min-width: 0; max-width: none; height: auto; aspect-ratio: 432 / 520; border-radius: 4px; overflow: hidden; cursor: pointer; }
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; z-index: 1; }
 .card-body { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 28px 12px 12px; border-radius: 0 0 4px 4px; background: linear-gradient(180deg, rgb(32 27 23 / 0%) 0%, rgb(32 27 23 / 55%) 45%, rgb(32 27 23 / 82%) 100%); }
 .card-body--dark, .card-body--mid, .card-body--light { background: linear-gradient(180deg, rgb(32 27 23 / 0%) 0%, rgb(32 27 23 / 55%) 45%, rgb(32 27 23 / 82%) 100%); }
@@ -31,10 +29,9 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
 .project-card:hover .card-img { transform: scale(1.02); transition: transform 0.4s ease; }
 .card-img { transition: transform 0.4s ease; }
 .project-card { contain: layout style; }
-.projects-group:not(:first-child) .project-card { content-visibility: auto; contain-intrinsic-size: 432px 520px; }
-@media (max-width: 1440px) { .projects-row { flex-wrap: wrap; } }
-@media (max-width: 900px) { .projects-section { padding: var(--page-gutter); } .project-card { max-width: calc((100% - 24px) / 2); width: 0; } }
-@media (max-width: 767px) { .projects-section { padding: 20px var(--page-gutter) 32px; } .projects-row-groups { gap: 20px; } .projects-group { gap: 20px; } .projects-row { flex-direction: column; gap: 20px; align-items: stretch; } .project-card { width: 100%; max-width: 100%; flex: 1 1 auto; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; } .card-title { font-size: 10px; font-weight: 600; white-space: normal; text-overflow: clip; } }
+.projects-row .project-card:nth-child(n+4) { content-visibility: auto; contain-intrinsic-size: 432px 520px; }
+@media (max-width: 900px) { .projects-section { padding: var(--page-gutter); } .projects-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; } .project-card { width: 100%; max-width: none; } }
+@media (max-width: 767px) { .projects-section { padding: 20px var(--page-gutter) 32px; } .projects-row { grid-template-columns: 1fr; gap: 20px; align-items: stretch; justify-content: flex-start; } .project-card { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; margin-bottom: 20px; } .card-title { font-size: 10px; font-weight: 600; white-space: normal; text-overflow: clip; } }
 </style>
 </head>
 <body>
@@ -72,83 +69,11 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
   </div>
 </header>
 
-<section class="projects-section">
-  <div class="projects-row-groups">
-    <div class="projects-group">
-<h1 class="page-title">CUSTOM HOMES</h1>
-       <div class="projects-row">
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-birdst1-2.jpg,/figma_images/ch-birdst1-3.jpg,/figma_images/ch-birdst1-4.jpg,/figma_images/ch-birdst1-5.jpg,/figma_images/ch-birdst1-6.jpg">
-           <img src="/figma_images/ch-birdst1-land.jpg" alt="The Bird Street" class="card-img" loading="eager" fetchpriority="high" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="custom-homes|project.bird-street">THE BIRD STREET</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-birdst2-2.jpg,/figma_images/ch-birdst2-3.jpg,/figma_images/ch-birdst2-4.jpg">
-           <img src="/figma_images/ch-birdst2-land.jpg" alt="The Bird Street 2" class="card-img" loading="eager" fetchpriority="high" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="custom-homes|project.bird-street-2">THE BIRD STREET 2</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-birdst3-2.jpg">
-           <img src="/figma_images/ch-birdst3-land.jpg" alt="The Bird Street 3" class="card-img" loading="eager" fetchpriority="high" decoding="async" width="432" height="520">
-           <div class="card-body card-body--dark">
-             <h2 class="card-title" data-i18n="custom-homes|project.bird-street-3">THE BIRD STREET 3</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-     <div class="projects-group">
-       <div class="projects-row">
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-bevhills-2.jpg,/figma_images/ch-bevhills-3.jpg,/figma_images/ch-bevhills-4.jpg,/figma_images/ch-bevhills-5.avif,/figma_images/ch-bevhills-6.avif,/figma_images/ch-bevhills-7.jpg">
-           <img src="/figma_images/ch-bevhills-land.jpg" alt="Beverly Hills" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--mid">
-             <h2 class="card-title" data-i18n="custom-homes|project.beverly-hills">BEVERLY HILLS</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-pacpal-2.jpg,/figma_images/ch-pacpal-3.jpg,/figma_images/ch-pacpal-4.jpg">
-           <img src="/figma_images/ch-pacpal-land.jpg" alt="Pacific Palisades" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--mid">
-             <h2 class="card-title" data-i18n="custom-homes|project.pacific-palisades">PACIFIC PALISADES</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-santamon-2.jpg,/figma_images/ch-santamon-3.jpg">
-           <img src="/figma_images/ch-santamon-land.jpg" alt="Santa Monica" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--mid">
-             <h2 class="card-title" data-i18n="custom-homes|project.santa-monica">SANTA MONICA</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-     <div class="projects-group">
-       <div class="projects-row">
-         <div class="project-card" data-lightbox="custom-homes" data-extra="/figma_images/ch-pasadena-2.jpg,/figma_images/ch-pasadena-3.jpg">
-           <img src="/figma_images/ch-pasadena-land.jpg" alt="Pasadena" class="card-img" loading="lazy" decoding="async" width="432" height="520">
-           <div class="card-body card-body--light">
-             <h2 class="card-title" data-i18n="custom-homes|project.pasadena">PASADENA</h2>
-             <span class="card-arrow" aria-hidden="true"><svg width="37" height="27" viewBox="0 0 37 27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M23 1L35 13.5L23 26M35 13.5H1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-           </div>
-         </div>
-       </div>
-     </div>
-  </div>
+<section class="projects-section" data-gallery-category="custom-homes" data-gallery-layout="projects">
+  <h1 class="page-title">CUSTOM HOMES</h1>
+  <div class="projects-row" data-dynamic-gallery data-gallery-category="custom-homes" data-gallery-layout="projects"></div>
 </section>
 
-<section class="site-footer-cta" aria-label="Discuss a project">
-  <div class="site-footer-cta__copy">
-    <p class="site-footer-cta__label">Ready to Start?</p>
-    <p class="site-footer-cta__heading">Let's Find the Right <em>Material for Your Project.</em></p>
-  </div>
-  <a href="/contact" class="site-footer-cta__btn">
-    <span>DISCUSS A PROJECT</span>
-    <span aria-hidden="true">→</span>
-  </a>
-</section>
 <script type="module" src="/js/gallery.js"></script>
 </body>
 </html>

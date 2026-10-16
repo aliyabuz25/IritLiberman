@@ -19,14 +19,13 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
 .projects-section { width: 100%; padding: 0 var(--page-gutter); }
 .projects-title-area { padding: 24px 0; display: flex; flex-direction: column; gap: 24px; }
 .projects-image-area { padding: 0 0 48px; display: flex; flex-direction: column; gap: 60px; }
-.projects-row { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 24px; width: 100%; }
+.projects-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 24px; width: 100%; }
 .page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; }
 .page-intro { font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.55; color: #5d5448; max-width: 560px; }
-.stone-card { flex: 1 1 0; width: 0; max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 520; object-fit: cover; border-radius: 4px; display: block; min-width: 0; cursor: pointer; transition: transform 0.4s ease; }
+.stone-card { flex: 1 1 0; width: 100%; max-width: none; height: auto; aspect-ratio: 432 / 520; object-fit: cover; border-radius: 4px; display: block; min-width: 0; cursor: pointer; transition: transform 0.4s ease; }
 .stone-card:hover { transform: scale(1.02); }
-@media (max-width: 1440px) { .projects-row { flex-wrap: wrap; } }
-@media (max-width: 900px) { .stone-card { max-width: calc((100% - 24px) / 2); width: 0; } }
-@media (max-width: 767px) { .projects-section { padding: 0 var(--page-gutter); } .projects-title-area { padding: 20px 0; } .projects-image-area { gap: 20px; padding-bottom: 32px; } .projects-row { flex-direction: column; gap: 20px; } .stone-card { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; } }
+@media (max-width: 900px) { .projects-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stone-card { max-width: none; width: 100%; } }
+@media (max-width: 767px) { .projects-section { padding: 0 var(--page-gutter); } .projects-title-area { padding: 20px 0; } .projects-image-area { gap: 20px; padding-bottom: 32px; } .projects-row { grid-template-columns: 1fr; gap: 20px; } .stone-card { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; } }
 </style>
 </head>
 <body>
@@ -70,24 +69,10 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
     <p class="page-intro">Solid blocks and decorative stone volumes selected for architectural features, landscape, and statement interiors.</p>
   </div>
   <div class="projects-image-area">
-    <div class="projects-row">
-      <img src="/figma_images/daf6b.jpg" alt="Natural stone block with layered veining" class="stone-card" loading="lazy" data-lightbox="stone-decorative">
-      <img src="/figma_images/38222.jpg" alt="Decorative stone block surface detail" class="stone-card" loading="lazy" data-lightbox="stone-decorative">
-      <img src="/figma_images/0fcbd.jpg" alt="Quarried stone block ready for fabrication" class="stone-card" loading="lazy" data-lightbox="stone-decorative">
-    </div>
-    <div class="projects-row">
-      <img src="/figma_images/eb5e1.jpg" alt="Monumental stone block installation" class="stone-card" loading="lazy" data-lightbox="stone-decorative">
-    </div>
+    <div class="projects-row" data-dynamic-gallery data-gallery-category="stone-blocks" data-gallery-layout="images" data-image-class="stone-card"></div>
   </div>
 </section>
 
-<section class="site-footer-cta" aria-label="Discuss a project">
-  <div class="site-footer-cta__copy">
-    <p class="site-footer-cta__label">Ready to Start?</p>
-    <p class="site-footer-cta__heading">Let's Find the Right <em>Material for Your Project.</em></p>
-  </div>
-  <a href="/contact" class="site-footer-cta__btn"><span>DISCUSS A PROJECT</span><span aria-hidden="true">→</span></a>
-</section>
 <script type="module" src="/js/gallery.js"></script>
 </body>
 </html>

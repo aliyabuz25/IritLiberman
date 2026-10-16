@@ -1,0 +1,238 @@
+[
+  {
+    "id": 1,
+    "category": "custom-homes",
+    "name": "The Bird Street",
+    "sort_order": 0,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 1,
+        "project_id": 1,
+        "filename": "ch-birdst1-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 2,
+        "project_id": 1,
+        "filename": "ch-birdst1-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 3,
+        "project_id": 1,
+        "filename": "ch-birdst1-3.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      },
+      {
+        "id": 4,
+        "project_id": 1,
+        "filename": "ch-birdst1-4.jpg",
+        "is_landing": 0,
+        "sort_order": 3
+      },
+      {
+        "id": 5,
+        "project_id": 1,
+        "filename": "ch-birdst1-5.jpg",
+        "is_landing": 0,
+        "sort_order": 4
+      },
+      {
+        "id": 6,
+        "project_id": 1,
+        "filename": "ch-birdst1-6.jpg",
+        "is_landing": 0,
+        "sort_order": 5
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "category": "custom-homes",
+    "name": "The Bird Street 2",
+    "sort_order": 1,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 7,
+        "project_id": 2,
+        "filename": "ch-birdst2-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 8,
+        "project_id": 2,
+        "filename": "ch-birdst2-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 9,
+        "project_id": 2,
+        "filename": "ch-birdst2-3.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      },
+      {
+        "id": 10,
+        "project_id": 2,
+        "filename": "ch-birdst2-4.jpg",
+        "is_landing": 0,
+        "sort_order": 3
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "category": "custom-homes",
+    "name": "The Bird Street 3",
+    "sort_order": 2,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 11,
+        "project_id": 3,
+        "filename": "ch-birdst3-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 12,
+        "project_id": 3,
+        "filename": "ch-birdst3-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "category": "custom-homes",
+    "name": "Beverly Hills",
+    "sort_order": 3,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 13,
+        "project_id": 4,
+        "filename": "ch-bevhills-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 14,
+        "project_id": 4,
+        "filename": "ch-bevhills-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 15,
+        "project_id": 4,
+        "filename": "ch-bevhills-3.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      },
+      {
+        "id": 16,
+        "project_id": 4,
+        "filename": "ch-bevhills-4.jpg",
+        "is_landing": 0,
+        "sort_order": 3
+      },
+      {
+        "id": 17,
+        "project_id": 4,
+        "filename": "ch-bevhills-5.avif",
+        "is_landing": 0,
+        "sort_order": 4
+      },
+      {
+        "id": 18,
+        "project_id": 4,
+        "filename": "ch-bevhills-6.avif",
+        "is_landing": 0,
+        "sort_order": 5
+      },
+      {
+        "id": 19,
+        "project_id": 4,
+        "filename": "ch-bevhills-7.jpg",
+        "is_landing": 0,
+        "sort_order": 6
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "category": "custom-homes",
+    "name": "Pacific Palisades",
+    "sort_order": 4,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 20,
+        "project_id": 5,
+        "filename": "ch-pacpal-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 21,
+        "project_id": 5,
+        "filename": "ch-pacpal-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 22,
+        "project_id": 5,
+        "filename": "ch-pacpal-3.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      },
+      {
+        "id": 23,
+        "project_id": 5,
+        "filename": "ch-pacpal-4.jpg",
+        "is_landing": 0,
+        "sort_order": 3
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "category": "custom-homes",
+    "name": "Pasadena",
+    "sort_order": 6,
+    "created_at": "2026-10-10 10:40:55",
+    "images": [
+      {
+        "id": 27,
+        "project_id": 7,
+        "filename": "ch-pasadena-land.jpg",
+        "is_landing": 1,
+        "sort_order": 0
+      },
+      {
+        "id": 28,
+        "project_id": 7,
+        "filename": "ch-pasadena-2.jpg",
+        "is_landing": 0,
+        "sort_order": 1
+      },
+      {
+        "id": 29,
+        "project_id": 7,
+        "filename": "ch-pasadena-3.jpg",
+        "is_landing": 0,
+        "sort_order": 2
+      }
+    ]
+  }
+]

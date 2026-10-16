@@ -5,11 +5,7 @@
  * <html data-i18n-page="home">.
  */
 
-const DEFAULT_LANG = 'en'
-
-function getLang() {
-  return DEFAULT_LANG
-}
+export const DEFAULT_LANG = 'en'
 
 function applyTranslations(data) {
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -21,7 +17,7 @@ function applyTranslations(data) {
   })
 }
 
-export async function loadI18n(lang = getLang()) {
+export async function loadI18n(lang = DEFAULT_LANG) {
   try {
     const res = await fetch(`/api/i18n/${lang}`)
     if (!res.ok) return
@@ -31,6 +27,3 @@ export async function loadI18n(lang = getLang()) {
     // silently fail — fallback is hardcoded HTML text
   }
 }
-
-// Auto-run on import
-loadI18n()

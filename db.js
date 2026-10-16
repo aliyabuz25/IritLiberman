@@ -44,6 +44,11 @@ db.exec(`
     UNIQUE(page, key, lang)
   );
 
+  CREATE TABLE IF NOT EXISTS i18n_languages (
+    code TEXT PRIMARY KEY,
+    sort_order INTEGER NOT NULL DEFAULT 0
+  );
+
   CREATE TABLE IF NOT EXISTS projects (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
     category TEXT NOT NULL,
@@ -72,6 +77,11 @@ db.exec(`
     tw_title       TEXT DEFAULT '',
     tw_description TEXT DEFAULT '',
     tw_image       TEXT DEFAULT ''
+  );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT DEFAULT ''
   );
 `)
 
@@ -104,9 +114,6 @@ if (projCount.c === 0) {
     { cat: 'custom-homes', name: 'Pacific Palisades', images: [
       { f: 'ch-pacpal-land.jpg', land: 1 }, { f: 'ch-pacpal-2.jpg' }, { f: 'ch-pacpal-3.jpg' }, { f: 'ch-pacpal-4.jpg' }
     ]},
-    { cat: 'custom-homes', name: 'Santa Monica', images: [
-      { f: 'ch-santamon-land.jpg', land: 1 }, { f: 'ch-santamon-2.jpg' }, { f: 'ch-santamon-3.jpg' }
-    ]},
     { cat: 'custom-homes', name: 'Pasadena', images: [
       { f: 'ch-pasadena-land.jpg', land: 1 }, { f: 'ch-pasadena-2.jpg' }, { f: 'ch-pasadena-3.jpg' }
     ]},
@@ -125,7 +132,6 @@ if (projCount.c === 0) {
     { cat: 'hospitality', name: 'Regent Hotel Santa Monica', images: [
       { f: 'hosp-regent-sm.jpg', land: 1 }, { f: 'hosp-regent-2.jpg' }, { f: 'hosp-regent-3.jpg' }, { f: 'hosp-regent-4.jpg' }
     ]},
-    { cat: 'commercial', name: 'Santa Monica', images: [{ f: '6f440.jpg', land: 1 }]},
     { cat: 'commercial', name: 'Kurve on Wilshire', images: [{ f: '5b9aa.jpg', land: 1 }]},
     { cat: 'commercial', name: 'Skyview Sunset Boulevard', images: [{ f: '8ab23.jpg', land: 1 }]},
     { cat: 'commercial', name: 'DTLA', images: [
@@ -165,14 +171,12 @@ if (projCount.c === 0) {
   ['custom-homes','project.bird-street-3',  'en','THE BIRD STREET 3'],
   ['custom-homes','project.beverly-hills',  'en','BEVERLY HILLS'],
   ['custom-homes','project.pacific-palisades','en','PACIFIC PALISADES'],
-  ['custom-homes','project.santa-monica',   'en','SANTA MONICA'],
   ['custom-homes','project.pasadena',       'en','PASADENA'],
   ['hospitality','project.bottega-louie',   'en','BOTTEGA LOUIE WEHO'],
   ['hospitality','project.1-hotel-weho',    'en','1 HOTEL WEHO'],
   ['hospitality','project.edition-weho',    'en','EDITION WEHO'],
   ['hospitality','project.pendry-weho',     'en','PENDRY WEHO'],
   ['hospitality','project.regent-hotel',    'en','REGENT HOTEL SANTA MONICA'],
-  ['commercial','project.santa-monica',     'en','SANTA MONICA'],
   ['commercial','project.kurve-wilshire',   'en','KURVE ON WILSHIRE'],
   ['commercial','project.skyview-sunset',   'en','SKYVIEW SUNSET BOULEVARD'],
   ['commercial','project.dtla',             'en','DTLA (DOWNTOWN LOS ANGELES)'],
@@ -298,9 +302,9 @@ if (i18nCount.c === 0) {
     ['about','cta.heading',     'en',"Find What You're Looking For."],
     ['about','cta.heading',     'tr','Aradığınızı Bulun.'],
     ['about','cta.heading',     'de','Finden Sie, was Sie suchen.'],
-    ['about','bring.label',     'en','What I Bring'],
-    ['about','bring.label',     'tr','Neler Sunuyorum'],
-    ['about','bring.label',     'de','Was ich mitbringe'],
+    ['about','bring.label',     'en','What Irit Brings'],
+    ['about','bring.label',     'tr','Irit\'in Sundukları'],
+    ['about','bring.label',     'de','Was Irit mitbringt'],
     ['about','art1.title',      'en','15+ Years in the Field'],
     ['about','art1.title',      'tr','15+ Yıllık Deneyim'],
     ['about','art1.title',      'de','15+ Jahre Erfahrung'],
@@ -410,7 +414,6 @@ if (i18nCount.c === 0) {
     ['custom-homes','project.bird-street-3',  'en','THE BIRD STREET 3'],
     ['custom-homes','project.beverly-hills',  'en','BEVERLY HILLS'],
     ['custom-homes','project.pacific-palisades','en','PACIFIC PALISADES'],
-    ['custom-homes','project.santa-monica',   'en','SANTA MONICA'],
     ['custom-homes','project.pasadena',       'en','PASADENA'],
 
     // hospitality — project titles
@@ -421,7 +424,6 @@ if (i18nCount.c === 0) {
     ['hospitality','project.regent-hotel',    'en','REGENT HOTEL SANTA MONICA'],
 
     // commercial — project titles
-    ['commercial','project.santa-monica',     'en','SANTA MONICA'],
     ['commercial','project.kurve-wilshire',   'en','KURVE ON WILSHIRE'],
     ['commercial','project.skyview-sunset',   'en','SKYVIEW SUNSET BOULEVARD'],
 ['commercial','project.dtla',             'en','DTLA (DOWNTOWN LOS ANGELES)'],
@@ -433,6 +435,9 @@ if (i18nCount.c === 0) {
 
   rows.forEach(r => ins.run(...r))
 }
+
+// Preserve languages in the admin even when a translation has not been entered yet.
+db.prepare('INSERT OR IGNORE INTO i18n_languages (code) SELECT DISTINCT lang FROM i18n').run()
 
 export default db
 export const queries = {
@@ -449,6 +454,11 @@ export const queries = {
   deleteMessage: db.prepare('DELETE FROM messages WHERE id=?'),
   markRead:      db.prepare('UPDATE messages SET read=1 WHERE id=?'),
   unreadCount:   db.prepare('SELECT COUNT(*) as c FROM messages WHERE read=0'),
+
+  // Settings
+  getSettings:   db.prepare('SELECT key, value FROM settings'),
+  getSetting:    db.prepare('SELECT value FROM settings WHERE key=?'),
+  setSetting:    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value'),
 
   // Pages
   getPages:      db.prepare('SELECT * FROM pages ORDER BY id'),
@@ -491,5 +501,5 @@ export const queries = {
     ON CONFLICT(page,key,lang) DO UPDATE SET value=excluded.value
   `),
   deleteEntry:   db.prepare('DELETE FROM i18n WHERE id=?'),
-  getLangs:      db.prepare('SELECT DISTINCT lang FROM i18n ORDER BY lang'),
+  getLangs:      db.prepare('SELECT code AS lang FROM i18n_languages ORDER BY sort_order, code'),
 }

@@ -62,6 +62,30 @@
   width: 100%;
 }
 
+/* Compact custom language menu, inserted into every public header. */
+.site-language-picker { position: relative; z-index: 180; flex-shrink: 0; margin-left: 18px; }
+.language-picker-trigger {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 36px; padding: 0 10px;
+  color: #201b17; background: transparent; border: 1px solid rgba(32, 27, 23, .28);
+  font: 600 10px/1 'Manrope', sans-serif; letter-spacing: .12em; cursor: pointer;
+}
+.language-picker-chevron { width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .18s; }
+.site-language-picker.is-open .language-picker-chevron { transform: translateY(2px) rotate(225deg); }
+.language-picker-menu {
+  position: absolute; top: calc(100% + 9px); right: 0; min-width: 150px; padding: 5px;
+  background: #fbf9f4; border: 1px solid rgba(32, 27, 23, .14); box-shadow: 0 12px 28px rgba(32, 27, 23, .14);
+}
+.language-picker-menu[hidden] { display: none; }
+.language-picker-option { display: block; width: 100%; padding: 10px 11px; border: 0; text-align: left; color: #201b17; background: transparent; font: 500 12px/1.2 'Manrope', sans-serif; cursor: pointer; }
+.language-picker-option:hover, .language-picker-option.is-selected { background: #f0ece4; }
+.language-picker-option.is-selected { font-weight: 700; }
+.language-picker-trigger:focus-visible, .language-picker-option:focus-visible { outline: 2px solid #201b17; outline-offset: 2px; }
+.hero-header .language-picker-trigger { color: #fff; border-color: rgba(255,255,255,.55); }
+.hero-header .language-picker-menu { color: #fff; background: #241f1b; border-color: rgba(255,255,255,.2); }
+.hero-header .language-picker-option { color: #f6f0e6; }
+.hero-header .language-picker-option:hover, .hero-header .language-picker-option.is-selected { background: rgba(255,255,255,.12); }
+.hero-header .language-picker-trigger:focus-visible, .hero-header .language-picker-option:focus-visible { outline-color: #f6f0e6; }
+
 /* ── LOGO ── */
 .logo {
   display: flex;
@@ -386,6 +410,13 @@
   .site-header:not(.hero-header) .hamburger span {
     background: #fff;
   }
+
+  .site-language-picker { margin-left: auto; margin-right: 14px; }
+  .site-header:not(.hero-header) .language-picker-trigger { color: #fff; border-color: rgba(255,255,255,.45); }
+  .site-header:not(.hero-header) .language-picker-menu { background: #241f1b; border-color: rgba(255,255,255,.18); }
+  .site-header:not(.hero-header) .language-picker-option { color: #f6f0e6; }
+  .site-header:not(.hero-header) .language-picker-option:hover,
+  .site-header:not(.hero-header) .language-picker-option.is-selected { background: rgba(255,255,255,.12); }
 
   .site-header:not(.hero-header) .logo:focus-visible,
   .site-header:not(.hero-header) .hamburger:focus-visible {

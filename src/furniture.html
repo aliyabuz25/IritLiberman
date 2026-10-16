@@ -19,14 +19,13 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
 .projects-section { width: 100%; padding: 0 var(--page-gutter); }
 .projects-title-area { padding: 24px 0; display: flex; flex-direction: column; gap: 24px; }
 .projects-image-area { padding: 0 0 48px; display: flex; flex-direction: column; gap: 60px; }
-.projects-row { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 24px; width: 100%; }
+.projects-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 24px; width: 100%; }
 .page-title { font-family: 'Satoshi', 'Manrope', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; }
 .page-intro { font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.55; color: #5d5448; max-width: 560px; }
-.furniture-img { flex: 1 1 0; width: 0; max-width: calc((100% - 48px) / 3); height: auto; aspect-ratio: 432 / 520; object-fit: cover; display: block; min-width: 0; border-radius: 4px; cursor: pointer; transition: transform 0.4s ease; }
+.furniture-img { flex: 1 1 0; width: 100%; max-width: none; height: auto; aspect-ratio: 432 / 520; object-fit: cover; display: block; min-width: 0; border-radius: 4px; cursor: pointer; transition: transform 0.4s ease; }
 .furniture-img:hover { transform: scale(1.02); }
-@media (max-width: 1440px) { .projects-row { flex-wrap: wrap; } }
-@media (max-width: 900px) { .furniture-img { max-width: calc((100% - 24px) / 2); width: 0; } }
-@media (max-width: 767px) { .projects-section { padding: 0 var(--page-gutter); } .projects-title-area { padding: 20px 0; } .projects-image-area { gap: 20px; padding-bottom: 32px; } .projects-row { flex-direction: column; gap: 20px; } .furniture-img { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; } }
+@media (max-width: 900px) { .projects-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .furniture-img { max-width: none; width: 100%; } }
+@media (max-width: 767px) { .projects-section { padding: 0 var(--page-gutter); } .projects-title-area { padding: 20px 0; } .projects-image-area { gap: 20px; padding-bottom: 32px; } .projects-row { grid-template-columns: 1fr; gap: 20px; } .furniture-img { width: 100%; max-width: 100%; height: auto; aspect-ratio: 342 / 412; margin: 0; } .page-title { font-size: 20px; } }
 </style>
 </head>
 <body>
@@ -70,24 +69,10 @@ html, body { width: 100%; min-height: 100%; background-color: #fbf9f4; color: #2
     <p class="page-intro">Sculptural stone pieces and custom furnishings sourced for interiors that need material presence beyond standard catalog options.</p>
   </div>
   <div class="projects-image-area">
-    <div class="projects-row">
-      <img src="/figma_images/fc0b9.jpg" alt="Carved stone furniture in a refined interior" class="furniture-img" loading="lazy" data-lightbox="furniture">
-      <img src="/figma_images/27cbb.jpg" alt="Stone seating and table forms" class="furniture-img" loading="lazy" data-lightbox="furniture">
-      <img src="/figma_images/e29e7.jpg" alt="Custom stone furniture detail" class="furniture-img" loading="lazy" data-lightbox="furniture">
-    </div>
-    <div class="projects-row">
-      <img src="/figma_images/6326b.jpg" alt="Monolithic stone furniture piece" class="furniture-img" loading="lazy" data-lightbox="furniture">
-    </div>
+    <div class="projects-row" data-dynamic-gallery data-gallery-category="stone-furniture" data-gallery-layout="images" data-image-class="furniture-img"></div>
   </div>
 </section>
 
-<section class="site-footer-cta" aria-label="Discuss a project">
-  <div class="site-footer-cta__copy">
-    <p class="site-footer-cta__label">Ready to Start?</p>
-    <p class="site-footer-cta__heading">Let's Find the Right <em>Material for Your Project.</em></p>
-  </div>
-  <a href="/contact" class="site-footer-cta__btn"><span>DISCUSS A PROJECT</span><span aria-hidden="true">→</span></a>
-</section>
 <script type="module" src="/js/gallery.js"></script>
 </body>
 </html>

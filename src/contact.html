@@ -41,6 +41,21 @@
     .footer-link-text { font-family: 'Satoshi', sans-serif; font-size: 18px; font-weight: 400; text-align: center; }
     .footer-link-arrow { width: 18px; height: 18px; flex-shrink: 0; }
     .footer-copy { margin-left: auto; font-family: 'Satoshi', sans-serif; font-size: 20px; font-weight: 400; color: #201b17; white-space: nowrap; }
+    .contact-form { margin-top: 48px; display: flex; flex-direction: column; gap: 32px; max-width: 640px; width: 100%; }
+    .form-row { display: flex; gap: 32px; }
+    .form-field { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .form-field label { font-family: 'Satoshi', sans-serif; font-size: 14px; font-weight: 400; color: #4a4742; }
+    .form-field input, .form-field textarea { font-family: 'Satoshi', sans-serif; font-size: 18px; font-weight: 400; color: #201b17; background: transparent; border: none; border-bottom: 1px solid #bbb1a5; padding: 10px 0; outline: none; border-radius: 0; transition: border-color 0.2s; resize: vertical; width: 100%; }
+    .form-field input::placeholder, .form-field textarea::placeholder { color: #a8a49c; }
+    .form-field input:focus, .form-field textarea:focus { border-color: #201b17; }
+    .form-field textarea { min-height: 96px; }
+    .form-submit { align-self: flex-start; display: inline-flex; align-items: center; gap: 16px; background: #201b17; color: #fbf9f4; border: none; padding: 18px 28px; font-family: 'Satoshi', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 1.6px; cursor: pointer; transition: opacity 0.2s; }
+    .form-submit:hover { opacity: 0.85; }
+    .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .form-submit-arrow { font-size: 16px; line-height: 1; }
+    .form-status { font-family: 'Satoshi', sans-serif; font-size: 15px; min-height: 1.2em; margin: 0; }
+    .form-status.success { color: #2e6b3e; }
+    .form-status.error { color: #a03a2a; }
     @media (max-width: 1279px) {
       .page-body { min-height: 0; display: flex; flex-direction: column; grid-template-rows: none; }
       .contact-info { position: relative; top: auto; right: auto; width: 100%; max-width: 100%; padding: 32px var(--page-gutter) 0; order: 1; }
@@ -51,6 +66,7 @@
       .contact-divider { width: 100%; max-width: calc(100% - 96px); }
       .contact-footer { gap: 48px; flex-wrap: wrap; }
       .footer-copy { margin-left: 0; width: 100%; white-space: normal; }
+      .form-row { gap: 24px; }
     }
     @media (min-width: 1280px) and (max-height: 820px) {
       .page-body { min-height: 0; display: flex; flex-direction: column; grid-template-rows: none; }
@@ -73,6 +89,10 @@
       .footer-links { flex-direction: column; gap: 24px; align-items: flex-start; }
       .footer-brand { width: 100%; }
       .footer-copy { margin-left: 0; white-space: normal; font-size: 16px; }
+      .contact-form { margin-top: 32px; gap: 24px; }
+      .form-row { flex-direction: column; gap: 24px; }
+      .form-field input, .form-field textarea { font-size: 16px; }
+      .form-submit { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -135,6 +155,27 @@
     <div class="hero-left">
       <p class="hero-eyebrow">GOT A PROJECT IN MIND?</p>
       <h1 class="hero-headline">LET'S TALK</h1>
+      <form class="contact-form" id="contact-form" novalidate>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="cf-name">Name</label>
+            <input type="text" id="cf-name" name="name" autocomplete="name" placeholder="Your name" required>
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" autocomplete="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" name="message" rows="4" placeholder="Tell us about your project…" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">
+          <span>SEND MESSAGE</span>
+          <span class="form-submit-arrow">→</span>
+        </button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
     </div>
     <svg class="hero-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M6 6L18 18M18 18H8M18 18V8" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -168,5 +209,58 @@
 </div>
 
 <script type="module" src="/js/main.js"></script>
+<script>
+(function () {
+  var form = document.getElementById('contact-form');
+  var statusEl = document.getElementById('form-status');
+  var btn = form.querySelector('.form-submit');
+  var nameInput = document.getElementById('cf-name');
+  var emailInput = document.getElementById('cf-email');
+  var messageInput = document.getElementById('cf-message');
+
+  function setStatus(text, type) {
+    statusEl.textContent = text;
+    statusEl.className = 'form-status' + (type ? ' ' + type : '');
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    setStatus('');
+
+    var name = nameInput.value.trim();
+    var email = emailInput.value.trim();
+    var message = messageInput.value.trim();
+
+    if (!name || !email || !message) {
+      setStatus('Please fill in all fields.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus('Please enter a valid email address.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      var res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, message: message })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (res.ok) {
+        setStatus('Thank you — your message has been sent.', 'success');
+        form.reset();
+      } else {
+        setStatus(data.error || 'Something went wrong. Please try again.', 'error');
+      }
+    } catch (err) {
+      setStatus('Network error. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>
