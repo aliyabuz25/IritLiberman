@@ -34,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:3000`. Admin panel at `/admin/` (default: `admin` / `nigar2025`).
+Opens at `http://localhost:3000`. On the first visit to `/admin/` with an empty database, create the initial admin username and password. There is no default admin account.
 
 ## Project structure
 

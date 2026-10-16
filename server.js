@@ -429,14 +429,18 @@ async function main() {
   })
 
   app.post('/api/admin/setup', (req, res) => {
-    const count = db.prepare('SELECT COUNT(*) as c FROM users').get().c
-    if (count > 0) return res.status(403).json({ error: 'Setup already completed.' })
     const { username, password } = req.body
     if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' })
     if (username.length < 3) return res.status(400).json({ error: 'Username must be at least 3 characters.' })
     if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' })
     const hash = bcrypt.hashSync(password, 10)
-    db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash)
+    const createFirstAdmin = db.transaction(() => {
+      const count = db.prepare('SELECT COUNT(*) as c FROM users').get().c
+      if (count > 0) return false
+      db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash)
+      return true
+    })
+    if (!createFirstAdmin()) return res.status(403).json({ error: 'Setup already completed.' })
     res.json({ ok: true })
   })
 
