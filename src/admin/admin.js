@@ -1040,10 +1040,11 @@ function renderProjectGroups(projects, grid, cat) {
       <button class="btn btn-sm btn-primary" onclick="createProject('${esc(cat)}')">+ New Project</button>
     </div>
     ${projects.map((proj, projectIndex) => `
-      <div class="col-12 mb-4" id="proj-group-${proj.id}">
+      <div class="col-12 mb-4 project-order-item" id="proj-group-${proj.id}" data-project-id="${proj.id}">
         <div class="card" style="border:1px solid #e8e2d9;">
           <div class="card-header d-flex align-items-center justify-content-between" style="background:#fbf9f4;padding:10px 16px;">
             <div class="d-flex align-items-center" style="gap:8px;flex:1;">
+              <span class="project-drag-handle" draggable="true" title="Drag to reorder" aria-label="Drag ${esc(proj.name)} to reorder" style="cursor:grab;color:#84796d;font-size:1.1rem;line-height:1;user-select:none;">⠿</span>
               <span id="proj-name-label-${proj.id}" style="font-weight:700;font-size:.9rem;color:#201b17;">${esc(proj.name)}</span>
               ${projectIndex > 0 ? `<button onclick="moveProject(${proj.id},-1)" class="btn btn-xs btn-light" title="Move project earlier">↑</button>` : ''}
               ${projectIndex < projects.length - 1 ? `<button onclick="moveProject(${proj.id},1)" class="btn btn-xs btn-light" title="Move project later">↓</button>` : ''}
@@ -1071,6 +1072,38 @@ function renderProjectGroups(projects, grid, cat) {
       </div>
     `).join('')}
   `
+
+  let draggedProjectId = null
+  grid.ondragstart = event => {
+    if (!event.target.closest('.project-drag-handle')) return
+    const item = event.target.closest('.project-order-item')
+    if (!item) return
+    draggedProjectId = item.dataset.projectId
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', draggedProjectId)
+    requestAnimationFrame(() => { item.style.opacity = '.45' })
+  }
+  grid.ondragend = event => {
+    const item = event.target.closest('.project-order-item')
+    if (item) item.style.opacity = ''
+    draggedProjectId = null
+  }
+  grid.ondragover = event => {
+    const target = event.target.closest('.project-order-item')
+    const dragging = draggedProjectId ? grid.querySelector(`[data-project-id="${CSS.escape(draggedProjectId)}"]`) : null
+    if (!dragging || !target || dragging === target) return
+    event.preventDefault()
+    const bounds = target.getBoundingClientRect()
+    const insertAfter = event.clientY > bounds.top + bounds.height / 2
+    grid.insertBefore(dragging, insertAfter ? target.nextElementSibling : target)
+  }
+  grid.ondrop = async event => {
+    if (!event.target.closest('.project-order-item')) return
+    event.preventDefault()
+    const order = [...grid.querySelectorAll('.project-order-item')]
+      .map((item, sort_order) => ({ id: Number(item.dataset.projectId), sort_order }))
+    await saveProjectOrder(order)
+  }
 }
 
 function renderProjectImageCard(projId, img, index, count) {
@@ -1140,13 +1173,22 @@ async function moveProject(projectId, direction) {
   if (index < 0 || target < 0 || target >= projects.length) return
   ;[projects[index], projects[target]] = [projects[target], projects[index]]
   const order = projects.map((project, sort_order) => ({ id: project.id, sort_order }))
+  await saveProjectOrder(order)
+}
+
+async function saveProjectOrder(order) {
   const response = await fetch('/api/admin/projects/reorder', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order })
   })
-  if (response.ok) loadProjectImages()
-  else toast('Could not reorder projects.', 'error')
+  if (response.ok) {
+    toast('Project order saved.')
+    loadProjectImages()
+  } else {
+    toast('Could not reorder projects.', 'error')
+    loadProjectImages()
+  }
 }
 window.moveProject = moveProject
 

@@ -133,15 +133,15 @@ if (projCount.c === 0) {
       { f: 'hosp-regent-sm.jpg', land: 1 }, { f: 'hosp-regent-2.jpg' }, { f: 'hosp-regent-3.jpg' }, { f: 'hosp-regent-4.jpg' }
     ]},
     { cat: 'commercial', name: 'Kurve on Wilshire', images: [{ f: '5b9aa.jpg', land: 1 }]},
+    { cat: 'commercial', name: 'Oceanwide Plaza', images: [
+      { f: 'comm-oceanwide-pic3.jpg', land: 1 }, { f: 'e05b0.jpg' }, { f: 'comm-oceanwide-graffiti.jpg' }
+    ]},
     { cat: 'commercial', name: 'Skyview Sunset Boulevard', images: [{ f: '8ab23.jpg', land: 1 }]},
     { cat: 'commercial', name: 'DTLA', images: [
       { f: 'comm-dtla-gh.jpg', land: 1 }, { f: 'comm-dtla-888.jpg' }, { f: 'comm-dtla-ext.jpg' }
     ]},
     { cat: 'commercial', name: 'Circa DTLA', images: [{ f: '21ba2.jpg', land: 1 }]},
     { cat: 'commercial', name: 'AKA on Sunset Blvd', images: [{ f: 'f24af.jpg', land: 1 }]},
-    { cat: 'commercial', name: 'Oceanwide Plaza', images: [
-      { f: 'comm-oceanwide-pic3.jpg', land: 1 }, { f: 'e05b0.jpg' }, { f: 'comm-oceanwide-graffiti.jpg' }
-    ]},
     { cat: 'commercial', name: 'The Harland WeHo', images: [{ f: 'b22ac.jpg', land: 1 }]},
     { cat: 'bending-stone', name: '1MM Bending Stone', images: [
       { f: '9a808.jpg', land: 1 }, { f: '0fcbd.jpg' }, { f: '1c524.jpg' }, { f: '38222.jpg' },
@@ -162,6 +162,22 @@ if (projCount.c === 0) {
       insImg.run(pid, img.f, img.land ? 1 : 0, ii)
     })
   })
+}
+
+// One-time ordering migration: put Oceanwide Plaza first in Commercial while
+// preserving the relative order of the other projects.
+const oceanwideOrderMigration = 'commercial-oceanwide-first-v1'
+const oceanwideOrderApplied = db.prepare('SELECT 1 FROM settings WHERE key=?').get(oceanwideOrderMigration)
+if (!oceanwideOrderApplied) {
+  const reorderCommercial = db.transaction(() => {
+    const projects = db.prepare("SELECT id, name FROM projects WHERE category='commercial' ORDER BY sort_order, id").all()
+    const oceanwide = projects.filter(project => project.name.toLowerCase() === 'oceanwide plaza')
+    const ordered = [...oceanwide, ...projects.filter(project => project.name.toLowerCase() !== 'oceanwide plaza')]
+    const updateSort = db.prepare('UPDATE projects SET sort_order=? WHERE id=?')
+    ordered.forEach((project, sortOrder) => updateSort.run(sortOrder, project.id))
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(oceanwideOrderMigration, '1')
+  })
+  reorderCommercial()
 }
 
 // Migration — ensure project title i18n keys exist in older DBs
