@@ -1,13 +1,13 @@
 import { DEFAULT_LANG, loadI18n } from './i18n.js'
 
-const LABELS = {
-  en: 'English', tr: 'Türkçe', az: 'Azərbaycanca', de: 'Deutsch', fr: 'Français',
-  es: 'Español', it: 'Italiano', pt: 'Português', ru: 'Русский', ar: 'العربية'
-}
 const storageKey = 'site-language'
 
 function languageLabel(code) {
-  return LABELS[code.toLowerCase()] || code.toUpperCase()
+  try {
+    return new Intl.DisplayNames([code], { type: 'language' }).of(code) || code.toUpperCase()
+  } catch {
+    return code.toUpperCase()
+  }
 }
 
 function createPicker(languages, activeLanguage) {
@@ -83,7 +83,7 @@ async function initLanguagePicker() {
     if (response.ok) config = await response.json()
   } catch {}
 
-  const languages = [...new Set((config.languages || []).filter(lang => /^[a-z]{2,3}(?:-[A-Z]{2})?$/.test(lang)))]
+  const languages = [...new Set((config.languages || []).filter(lang => /^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(lang)))]
   let selected = DEFAULT_LANG
   try {
     const saved = localStorage.getItem(storageKey)

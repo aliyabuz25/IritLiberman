@@ -410,6 +410,32 @@
           </div>
         </div>
 
+        <div class="modal fade" id="i18n-language-modal" tabindex="-1" role="dialog" aria-labelledby="i18n-language-modal-title" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="i18n-language-modal-title">Manage languages</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-body">
+                <p id="i18n-language-modal-help" class="text-muted small"></p>
+                <input id="i18n-language-search" class="form-control mb-2" type="search" placeholder="Search by language or code">
+                <select id="i18n-language-select" class="form-control" size="9" aria-label="Choose language"></select>
+                <div id="i18n-custom-language-wrap" class="mt-3">
+                  <label for="i18n-custom-language-code">Or enter another language code</label>
+                  <input id="i18n-custom-language-code" class="form-control" type="text" placeholder="ISO 639-3 or BCP 47, e.g. haw or zh-Hans">
+                  <small class="form-text text-muted">Supports three-letter ISO codes and regional/script tags.</small>
+                </div>
+                <div id="i18n-language-modal-error" class="alert alert-danger py-2 mt-3 d-none"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="i18n-language-submit" onclick="submitI18nLanguage()">Add Language</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Users -->
         <div id="sec-users" class="d-none">
           <div class="card">

@@ -557,7 +557,12 @@ async function main() {
     if (!/^[a-zA-Z]{2,3}(?:-[a-zA-Z0-9]{2,8})*$/.test(rawCode)) {
       return res.status(400).json({ error: 'Enter a valid language code, such as fr or pt-BR.' })
     }
-    const code = rawCode.split('-').map((part, index) => index === 0 ? part.toLowerCase() : part.toUpperCase()).join('-')
+    const code = rawCode.split('-').map((part, index) => {
+      if (index === 0) return part.toLowerCase()
+      if (/^[a-z]{4}$/i.test(part)) return part[0].toUpperCase() + part.slice(1).toLowerCase()
+      if (/^(?:[a-z]{2}|\d{3})$/i.test(part)) return part.toUpperCase()
+      return part.toLowerCase()
+    }).join('-')
     if (queries.getLangs.all().some(row => row.lang.toLowerCase() === code.toLowerCase())) {
       return res.status(409).json({ error: 'That language already exists.' })
     }

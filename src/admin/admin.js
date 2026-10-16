@@ -1,4 +1,6 @@
 
+import { ISO_639_1_LANGUAGES } from './language-catalog.js'
+
 const OCTO_VERSION = '1.0.0'
 const OCTO_BUILD   = 'b' + (parseInt(localStorage.getItem('octo_build') || '1841'))
 ;(function() {
@@ -367,6 +369,14 @@ const i18nDrafts = new Map()
 
 const i18nDraftId = (page, key, lang) => JSON.stringify([page, key, lang])
 
+function getLanguageName(code, locale = 'en') {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'language' }).of(code) || code.toUpperCase()
+  } catch {
+    return code.toUpperCase()
+  }
+}
+
 async function loadI18n() {
   const sidebar = document.getElementById('i18n-sidebar')
   const content = document.getElementById('i18n-content')
@@ -474,7 +484,7 @@ function renderI18nView() {
       </div>` + (rows.length ? rows.map(r => {
       const inputsHtml = i18nLangs.map(l => `
         <div class="col-12 col-xl-4 mb-3">
-          <label class="text-muted text-uppercase" style="font-size:12px;">${l}</label>
+          <label class="text-muted" style="font-size:12px;">${esc(getLanguageName(l))} <code>${esc(l)}</code></label>
           <textarea class="form-control i18n-input ${i18nDrafts.has(i18nDraftId(r.page, r.key, l)) ? 'changed' : ''}" rows="3"
             data-page="${esc(r.page)}" data-key="${esc(r.key)}" data-lang="${esc(l)}"
             oninput="onCellChange(this)">${esc(i18nDrafts.get(i18nDraftId(r.page, r.key, l)) ?? r[l]?.value ?? '')}</textarea>
@@ -593,42 +603,113 @@ async function saveAllChanged() {
 }
 window.saveAllChanged = saveAllChanged
 
-async function addI18nLanguage() {
-  const raw = prompt('Language code (examples: fr, es, pt-BR):')
-  if (!raw?.trim()) return
-  try {
-    const response = await fetch('/api/admin/i18n/languages', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: raw.trim() })
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Could not add language.')
-    toast(`Language ${data.lang} added.`)
-    await loadI18n()
-  } catch (error) { toast(error.message || 'Could not add language.', 'error') }
+let i18nLanguageMode = 'add'
+
+function renderI18nLanguageOptions() {
+  const select = document.getElementById('i18n-language-select')
+  if (!select) return
+  const search = (document.getElementById('i18n-language-search')?.value || '').trim().toLowerCase()
+  const available = i18nLanguageMode === 'add'
+    ? ISO_639_1_LANGUAGES.filter(code => !i18nLangs.some(active => active.toLowerCase() === code))
+    : [...i18nLangs]
+  const options = available.map(code => ({ code, label: getLanguageName(code) }))
+    .filter(item => !search || item.code.includes(search) || item.label.toLowerCase().includes(search))
+    .sort((a, b) => a.label.localeCompare(b.label))
+  select.replaceChildren(...options.map(item => {
+    const option = document.createElement('option')
+    option.value = item.code
+    option.textContent = `${item.label} (${item.code})`
+    return option
+  }))
 }
+
+function openI18nLanguageManager(mode) {
+  i18nLanguageMode = mode
+  const title = document.getElementById('i18n-language-modal-title')
+  const help = document.getElementById('i18n-language-modal-help')
+  const custom = document.getElementById('i18n-custom-language-wrap')
+  const submit = document.getElementById('i18n-language-submit')
+  const error = document.getElementById('i18n-language-modal-error')
+  title.textContent = mode === 'add' ? 'Add a language' : 'Remove a language'
+  help.textContent = mode === 'add'
+    ? `Choose from all ${ISO_639_1_LANGUAGES.length} ISO 639-1 languages, or enter an ISO 639-3 / regional code.`
+    : 'Choose an active language. Removing it also deletes its translations.'
+  custom.classList.toggle('d-none', mode !== 'add')
+  submit.textContent = mode === 'add' ? 'Add Language' : 'Remove Language'
+  submit.classList.toggle('btn-danger', mode === 'remove')
+  submit.classList.toggle('btn-primary', mode === 'add')
+  submit.disabled = mode === 'remove' && i18nLangs.length < 2
+  error.classList.add('d-none')
+  document.getElementById('i18n-language-search').value = ''
+  document.getElementById('i18n-custom-language-code').value = ''
+  renderI18nLanguageOptions()
+  window.jQuery('#i18n-language-modal').modal('show')
+}
+
+async function addI18nLanguage() { openI18nLanguageManager('add') }
 window.addI18nLanguage = addI18nLanguage
 
-async function removeI18nLanguage() {
-  if (i18nLangs.length < 2) { toast('At least one language must remain.', 'warning'); return }
-  const lang = prompt(`Enter the language code to remove (${i18nLangs.join(', ')}):`)
-  if (!lang?.trim()) return
-  const code = i18nLangs.find(item => item.toLowerCase() === lang.trim().toLowerCase())
-  if (!code) { toast('That language was not found.', 'error'); return }
-  if ([...i18nDrafts.keys()].some(draftId => JSON.parse(draftId)[2] === code)) {
-    toast('Save or discard this language’s unsaved translations before removing it.', 'warning')
+async function removeI18nLanguage() { openI18nLanguageManager('remove') }
+window.removeI18nLanguage = removeI18nLanguage
+
+async function submitI18nLanguage() {
+  const submit = document.getElementById('i18n-language-submit')
+  const error = document.getElementById('i18n-language-modal-error')
+  const customCode = document.getElementById('i18n-custom-language-code').value.trim()
+  const code = i18nLanguageMode === 'add' && customCode
+    ? customCode
+    : document.getElementById('i18n-language-select').value
+  error.classList.add('d-none')
+  if (!code) {
+    error.textContent = i18nLanguageMode === 'add' ? 'Choose a language or enter its code.' : 'There is no removable language selected.'
+    error.classList.remove('d-none')
     return
   }
-  if (!confirm(`Remove ${code} and all of its translations? This cannot be undone.`)) return
+  if (i18nLanguageMode === 'remove') {
+    if (i18nLangs.length < 2) {
+      error.textContent = 'At least one language must remain.'
+      error.classList.remove('d-none')
+      return
+    }
+    if ([...i18nDrafts.keys()].some(draftId => JSON.parse(draftId)[2] === code)) {
+      error.textContent = 'Save or discard this language’s unsaved translations before removing it.'
+      error.classList.remove('d-none')
+      return
+    }
+    if (!confirm(`Remove ${getLanguageName(code)} (${code}) and all its translations? This cannot be undone.`)) return
+  }
+
+  submit.disabled = true
   try {
-    const response = await fetch(`/api/admin/i18n/languages/${encodeURIComponent(code)}`, { method: 'DELETE' })
+    const response = await fetch(i18nLanguageMode === 'add'
+      ? '/api/admin/i18n/languages'
+      : `/api/admin/i18n/languages/${encodeURIComponent(code)}`, {
+      method: i18nLanguageMode === 'add' ? 'POST' : 'DELETE',
+      ...(i18nLanguageMode === 'add' ? {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      } : {})
+    })
     const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Could not remove language.')
-    toast(`Language ${code} removed.`)
+    if (!response.ok) throw new Error(data.error || 'Could not update languages.')
+    window.jQuery('#i18n-language-modal').modal('hide')
+    toast(i18nLanguageMode === 'add' ? `Language ${data.lang} added.` : `Language ${code} removed.`)
     await loadI18n()
-  } catch (error) { toast(error.message || 'Could not remove language.', 'error') }
+  } catch (error) {
+    errorElementMessage(error.message || 'Could not update languages.')
+  } finally {
+    submit.disabled = i18nLanguageMode === 'remove' && i18nLangs.length < 2
+  }
 }
-window.removeI18nLanguage = removeI18nLanguage
+window.submitI18nLanguage = submitI18nLanguage
+
+function errorElementMessage(message) {
+  const error = document.getElementById('i18n-language-modal-error')
+  error.textContent = message
+  error.classList.remove('d-none')
+}
+
+document.getElementById('i18n-language-search')?.addEventListener('input', renderI18nLanguageOptions)
 
 async function addI18nKey() {
   const page = (prompt('Page identifier (examples: home, about, custom-homes):', i18nActivePage && i18nActivePage !== 'media_library' ? i18nActivePage : '') || '').trim()
